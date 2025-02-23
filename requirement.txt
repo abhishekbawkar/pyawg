@@ -1,0 +1,2 @@
+python-vxi11==0.9 ; python_version >= "3.7" and python_version < "4.0" \
+    --hash=sha256:01fbd8d5be09352c6be46ae474a47d4fe44be2989f7e977c578c55733b076dff
