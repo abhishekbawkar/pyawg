@@ -13,7 +13,7 @@ class SiglentSDG1000X(AWG):
         """Sets the waveform type for the specified channel."""
         # Siglent uses a slightly different command structure
         try:
-            self.write(f"C{channel}:BSWV {waveform_type.value}")
+            self.write(f"C{channel}:BSWV WVTP,{waveform_type.value}")
             logging.debug(f"Channel {channel} waveform set to {waveform_type.value}")
         except Exception as e:
             logging.error(f"Failed to set channel {channel} waveform to {waveform_type.value}: {e}")
@@ -29,7 +29,7 @@ class SiglentSDG1000X(AWG):
             elif unit == FrequencyUnit.MHZ:
                 converted_frequency = frequency * 1000000
 
-            self.write(f"C{channel}:BSWF {converted_frequency}")
+            self.write(f"C{channel}:BSWV FRQ,{converted_frequency}")
             logging.debug(f"Channel {channel} frequency set to {frequency}{unit.value} (converted to {converted_frequency} Hz)")
         except Exception as e:
             logging.error(f"Failed to set channel {channel} frequency to {frequency}{unit.value}: {e}")
@@ -39,8 +39,8 @@ class SiglentSDG1000X(AWG):
         """Sets the amplitude for the specified channel."""
         try:
             # Siglent uses a slightly different command structure
-            self.write(f"C{channel}:BSVA {amplitude}{unit.value}")
-            logging.debug(f"Channel {channel} amplitude set to {amplitude}{unit.value}")
+            self.write(f"C{channel}:BSWV AMP,{amplitude}")
+            logging.debug(f"Channel {channel} amplitude set to {amplitude}")
         except Exception as e:
             logging.error(f"Failed to set channel {channel} amplitude to {amplitude}{unit.value}: {e}")
             raise
