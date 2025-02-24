@@ -35,3 +35,30 @@ class RigolDG1000Z(AWG):
         except Exception as e:
             logging.error(f"Failed to set channel {channel} amplitude to {amplitude}{unit.value}: {e}")
             raise
+
+    def set_offset(self, channel, offset_voltage: float):
+        """Sets the offset voltage for the specified channel."""
+        try:
+            self.write(f"SOUR{channel}:VOLT:OFFS {offset_voltage}")
+            logging.debug(f"Channel {channel} offset voltage set to {offset_voltage} Vdc")
+        except Exception as e:
+            logging.error(f"Failed to set channel {channel} offset voltage to {offset_voltage} Vdc: {e}")
+            raise
+
+    def set_phase(self, channel, phase: float):
+        """Sets the phase for the specified channel."""
+        try:
+            self.write(f"SOUR{channel}:PHAS {phase}")
+            logging.debug(f"Channel {channel} phase set to {phase}°")
+        except Exception as e:
+            logging.error(f"Failed to set channel {channel} phase to {phase}°: {e}")
+            raise
+
+    def sync_phase(self, channel: int = 1):
+        """Sets the phase synchronization of the two channels."""
+        try:
+            self.write(f"SOUR{channel}:PHAS:SYNC")
+            logging.debug(f"Phases of both the channels have been synchronized")
+        except Exception as e:
+            logging.error(f"Failed to set channel {channel} phase to {phase}°: {e}")
+            raise
