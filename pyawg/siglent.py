@@ -40,7 +40,7 @@ class SiglentSDG1000X(AWG):
         try:
             # Siglent uses a slightly different command structure
             self.write(f"C{channel}:BSWV AMP,{amplitude}")
-            logging.debug(f"Channel {channel} amplitude set to {amplitude}{unit.value}")
+            logging.debug(f"Channel {channel} amplitude set to {amplitude}")
         except Exception as e:
             logging.error(f"Failed to set channel {channel} amplitude to {amplitude}{unit.value}: {e}")
             raise
