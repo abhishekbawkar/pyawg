@@ -69,5 +69,5 @@ class SiglentSDG1000X(AWG):
             self.write(f"EQPHASE")
             logging.debug(f"Phases of both the channels have been synchronized")
         except Exception as e:
-            logging.error(f"Failed to set channel {channel} phase to {phase}°: {e}")
+            logging.error(f"Failed to synchronize phase: {e}")
             raise
