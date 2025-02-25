@@ -46,9 +46,5 @@ class AWG:
         except Exception as e:
             logging.error(f"Failed to disconnect from AWG: {e}")
 
-    def set_output(self, channel, state: bool):
-        state_str = "ON" if state else "OFF"
-        self.write(f"OUTP{channel}:STAT {state_str}")
-
     def get_id(self) -> str:
         return self.query("*IDN?")

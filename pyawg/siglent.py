@@ -9,6 +9,23 @@ class SiglentSDG1000X(AWG):
         super().__init__(ip_address)
         logging.debug("SiglentSDG1000X instance created.")
 
+    def set_output(self, channel, state: bool):
+        state_str = "ON" if state else "OFF"
+        try:
+            self.write(f"C{channel}:OUTP {state_str}")
+            logging.debug(f"Channel {channel} output has been set to {state_str}")
+        except Exception as e:
+            logging.error(f"Failed to set channel {channel} output to {state_str}")
+
+    def set_output_load(self, channel, load: str | int):
+        if load == 'HZ' or load == 'INF':
+            load = 'HZ'
+        try:
+            self.write(f"C{channel}:OUTP LOAD,{load}")
+            logging.debug(f"Channel {channel} output load has been set to {load}")
+        except Exception as e:
+            logging.error(f"Failed to set channel {channel} output load to {load}")
+
     def set_waveform(self, channel, waveform_type: WaveformType):
         """Sets the waveform type for the specified channel."""
         # Siglent uses a slightly different command structure
