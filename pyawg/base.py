@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import logging
 
 import vxi11
@@ -21,14 +22,28 @@ class AWG:
         except Exception as e:
             logging.error(f"Failed to connect to AWG at {ip_addr}: {e}")
             raise
-
-    def write(self, command):
+    
+    def __str__(self):
+        manufacturer, model, serial_number, fw_version = self.get_id().strip().split(',')
+        return json.dumps(
+            dict(
+                manufacturer=manufacturer,
+                model=model,
+                serial_number=serial_number,
+                fw_version=fw_version
+            ),
+            indent=2
+        )
+        
+    def close(self):
         try:
-            self.device.write(command)
-            logging.debug(f"Sent command: {command}")
+            self.device.close()
+            logging.debug("Disconnected from AWG")
         except Exception as e:
-            logging.error(f"Failed to write command: {e}")
-            raise
+            logging.error(f"Failed to disconnect from AWG: {e}")
+
+    def get_id(self) -> str:
+        return self.query("*IDN?")
 
     def query(self, command):
         try:
@@ -39,16 +54,10 @@ class AWG:
             logging.error(f"Failed to query command: {e}")
             raise
 
-    def close(self):
+    def write(self, command):
         try:
-            self.device.close()
-            logging.debug("Disconnected from AWG")
+            self.device.write(command)
+            logging.debug(f"Sent command: {command}")
         except Exception as e:
-            logging.error(f"Failed to disconnect from AWG: {e}")
-
-    def set_output(self, channel, state: bool):
-        state_str = "ON" if state else "OFF"
-        self.write(f"OUTP{channel}:STAT {state_str}")
-
-    def get_id(self) -> str:
-        return self.query("*IDN?")
+            logging.error(f"Failed to write command: {e}")
+            raise
