@@ -11,6 +11,10 @@ from .enums import WaveformType, AmplitudeUnit, FrequencyUnit
 class AWG:
     ip_addr: str
     device: vxi11.Instrument | None
+    manufacturer: str
+    model: str
+    serial_number: str
+    fw_version: str
 
     def __init__(self: AWG, ip_addr: str):
         self.ip_addr = ip_addr
@@ -19,18 +23,19 @@ class AWG:
             self.device = vxi11.Instrument(ip_addr)
             self.device.clear()
             logging.debug(f"Connected to AWG at {ip_addr}")
+            
+            self.manufacturer, self.model, self.serial_number, self.fw_version = self.get_id().strip().split(',')
         except Exception as e:
             logging.error(f"Failed to connect to AWG at {ip_addr}: {e}")
             raise
     
     def __str__(self):
-        manufacturer, model, serial_number, fw_version = self.get_id().strip().split(',')
         return json.dumps(
             dict(
-                manufacturer=manufacturer,
-                model=model,
-                serial_number=serial_number,
-                fw_version=fw_version
+                manufacturer=self.manufacturer,
+                model=self.model,
+                serial_number=self.serial_number,
+                fw_version=self.fw_version
             ),
             indent=2
         )
