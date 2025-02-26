@@ -28,8 +28,8 @@ class SiglentSDG1000X(AWG):
             return result_dict[parameter]
             
         except Exception as e:
-                    logging.error(f"Failed to retrieve parameter and/or its value: {e}")
-                    raise
+            logging.error(f"Failed to retrieve parameter and/or its value: {e}")
+            raise
 
     def set_amplitude(self, channel, amplitude: float, unit: AmplitudeUnit = AmplitudeUnit.VPP):
         """Sets the amplitude for the specified channel."""
@@ -39,6 +39,28 @@ class SiglentSDG1000X(AWG):
         except Exception as e:
             logging.error(f"Failed to set channel {channel} amplitude to {amplitude}{unit.value}: {e}")
             raise
+
+    def set_burst_delay(self, channel, delay: float):
+        try:
+            self.write(f"C{channel}:BTWV DEL,{delay}")
+            logging.debug(f"Channel {channel} burst delay has been set to {delay}")
+        except Exception as e:
+            logging.error(f"Failed to set channel {channel} burst delay to {delay}") 
+
+    def set_burst_mode(self, channel, state: bool):
+        state_str = "ON" if state else "OFF"
+        try:
+            self.write(f"C{channel}:BTWV STATE,{state_str}")
+            logging.debug(f"Channel {channel} burst mode has been set to {state_str}")
+        except Exception as e:
+            logging.error(f"Failed to set channel {channel} burst mode to {state_str}") 
+
+    def set_burst_period(self, channel, period: float):
+        try:
+            self.write(f"C{channel}:BTWV PRD,{period}")
+            logging.debug(f"Channel {channel} burst period has been set to {period}")
+        except Exception as e:
+            logging.error(f"Failed to set channel {channel} burst period to {period}") 
 
     def set_frequency(self, channel, frequency: float, unit: FrequencyUnit = FrequencyUnit.HZ):
         """Sets the frequency for the specified channel."""
