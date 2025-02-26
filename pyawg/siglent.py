@@ -9,6 +9,61 @@ class SiglentSDG1000X(AWG):
         super().__init__(ip_address)
         logging.debug("SiglentSDG1000X instance created.")
 
+    def get_channel_wave_parameter(self, channel, parameter):
+        """Gets the waveform parameters for the specified channel"""
+        try:
+            response = self.query(f"C{channel}BSWV?").split(' ')[1]
+            params = dict(zip(response.strip("'").split(',')[::2], response.strip("'").split(',')[1::2]))
+
+            result_dict = {
+                'waveform_type': params.get('WVTP'),
+                'frequency': params.get('FRQ'),
+                'period': params.get('PERI'),
+                'amplitude': params.get('AMP'),
+                'offset': params.get('OFST'),
+                'high_level': params.get('HLEV'),
+                'low_level': params.get('LLEV'),
+                'phase': params.get('PHSE')
+            }
+            return result_dict[parameter]
+            
+        except Exception as e:
+                    logging.error(f"Failed to retrieve parameter and/or its value: {e}")
+                    raise
+
+    def set_amplitude(self, channel, amplitude: float, unit: AmplitudeUnit = AmplitudeUnit.VPP):
+        """Sets the amplitude for the specified channel."""
+        try:
+            self.write(f"C{channel}:BSWV AMP,{amplitude}")
+            logging.debug(f"Channel {channel} amplitude set to {amplitude}")
+        except Exception as e:
+            logging.error(f"Failed to set channel {channel} amplitude to {amplitude}{unit.value}: {e}")
+            raise
+
+    def set_frequency(self, channel, frequency: float, unit: FrequencyUnit = FrequencyUnit.HZ):
+        """Sets the frequency for the specified channel."""
+        try:
+            converted_frequency = frequency
+            if unit == FrequencyUnit.KHZ:
+                converted_frequency = frequency * 1000
+            elif unit == FrequencyUnit.MHZ:
+                converted_frequency = frequency * 1000000
+
+            self.write(f"C{channel}:BSWV FRQ,{converted_frequency}")
+            logging.debug(f"Channel {channel} frequency set to {frequency}{unit.value} (converted to {converted_frequency} Hz)")
+        except Exception as e:
+            logging.error(f"Failed to set channel {channel} frequency to {frequency}{unit.value}: {e}")
+            raise
+
+    def set_offset(self, channel, offset_voltage: float):
+        """Sets the offset voltage for the specified channel."""
+        try:
+            self.write(f"C{channel}:BSWV OFST,{offset_voltage}")
+            logging.debug(f"Channel {channel} offset voltage set to {offset_voltage} Vdc")
+        except Exception as e:
+            logging.error(f"Failed to set channel {channel} offset voltage to {offset_voltage} Vdc: {e}")
+            raise
+
     def set_output(self, channel, state: bool):
         state_str = "ON" if state else "OFF"
         try:
@@ -26,51 +81,6 @@ class SiglentSDG1000X(AWG):
         except Exception as e:
             logging.error(f"Failed to set channel {channel} output load to {load}")
 
-    def set_waveform(self, channel, waveform_type: WaveformType):
-        """Sets the waveform type for the specified channel."""
-        # Siglent uses a slightly different command structure
-        try:
-            self.write(f"C{channel}:BSWV WVTP,{waveform_type.value}")
-            logging.debug(f"Channel {channel} waveform set to {waveform_type.value}")
-        except Exception as e:
-            logging.error(f"Failed to set channel {channel} waveform to {waveform_type.value}: {e}")
-            raise
-
-    def set_frequency(self, channel, frequency: float, unit: FrequencyUnit = FrequencyUnit.HZ):
-        """Sets the frequency for the specified channel."""
-        try:
-            # Siglent uses a slightly different command structure
-            converted_frequency = frequency
-            if unit == FrequencyUnit.KHZ:
-                converted_frequency = frequency * 1000
-            elif unit == FrequencyUnit.MHZ:
-                converted_frequency = frequency * 1000000
-
-            self.write(f"C{channel}:BSWV FRQ,{converted_frequency}")
-            logging.debug(f"Channel {channel} frequency set to {frequency}{unit.value} (converted to {converted_frequency} Hz)")
-        except Exception as e:
-            logging.error(f"Failed to set channel {channel} frequency to {frequency}{unit.value}: {e}")
-            raise
-
-    def set_amplitude(self, channel, amplitude: float, unit: AmplitudeUnit = AmplitudeUnit.VPP):
-        """Sets the amplitude for the specified channel."""
-        try:
-            # Siglent uses a slightly different command structure
-            self.write(f"C{channel}:BSWV AMP,{amplitude}")
-            logging.debug(f"Channel {channel} amplitude set to {amplitude}")
-        except Exception as e:
-            logging.error(f"Failed to set channel {channel} amplitude to {amplitude}{unit.value}: {e}")
-            raise
-
-    def set_offset(self, channel, offset_voltage: float):
-        """Sets the offset voltage for the specified channel."""
-        try:
-            self.write(f"C{channel}:BSWV OFST,{offset_voltage}")
-            logging.debug(f"Channel {channel} offset voltage set to {offset_voltage} Vdc")
-        except Exception as e:
-            logging.error(f"Failed to set channel {channel} offset voltage to {offset_voltage} Vdc: {e}")
-            raise
-
     def set_phase(self, channel, phase: float):
         """Sets the phase for the specified channel."""
         try:
@@ -78,6 +88,15 @@ class SiglentSDG1000X(AWG):
             logging.debug(f"Channel {channel} phase set to {phase}°")
         except Exception as e:
             logging.error(f"Failed to set channel {channel} phase to {phase}°: {e}")
+            raise
+
+    def set_waveform(self, channel, waveform_type: WaveformType):
+        """Sets the waveform type for the specified channel."""
+        try:
+            self.write(f"C{channel}:BSWV WVTP,{waveform_type.value}")
+            logging.debug(f"Channel {channel} waveform set to {waveform_type.value}")
+        except Exception as e:
+            logging.error(f"Failed to set channel {channel} waveform to {waveform_type.value}: {e}")
             raise
 
     def sync_phase(self):
