@@ -10,7 +10,7 @@ def awg_control(ip_address: str) -> AWG:
     try:
         # Create a generic AWG instance to identify the device
         temp_awg = AWG(ip_address)
-        device_id = temp_awg.get_id()
+        device_id = temp_awg.model
         temp_awg.close()  # Close the temporary connection
 
         if "RIGOL" in device_id.upper():
