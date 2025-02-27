@@ -19,7 +19,7 @@ def awg_control(ip_address: str) -> AWG:
         elif re.match('^(SDG10[3|6]2X)$', model):
             return SiglentSDG1000X(ip_address)
         else:
-            raise ValueError(f"Unsupported AWG device: {device_id}")
+            raise ValueError(f"Unsupported AWG device: {model}")
     except Exception as e:
         logging.error(f"Failed to identify AWG at {ip_address}: {e}")
         raise

@@ -1,7 +1,10 @@
+from __future__ import annotations
+
 import logging
 
 from .base import AWG
-from .enums import WaveformType, FrequencyUnit, AmplitudeUnit
+from .enums import WaveformType, FrequencyUnit, AmplitudeUnit, BurstTriggerSource, BurstModeSiglent
+from .exceptions import *
 
 
 class SiglentSDG1000X(AWG):
@@ -26,13 +29,17 @@ class SiglentSDG1000X(AWG):
                 'phase': params.get('PHSE')
             }
             return result_dict[parameter]
-            
+
         except Exception as e:
             logging.error(f"Failed to retrieve parameter and/or its value: {e}")
             raise
 
     def set_amplitude(self, channel, amplitude: float, unit: AmplitudeUnit = AmplitudeUnit.VPP):
         """Sets the amplitude for the specified channel."""
+        
+        if not (channel == 1 and channel == 2):
+            raise InvalidChannelNumber(channel)
+        
         try:
             self.write(f"C{channel}:BSWV AMP,{amplitude}")
             logging.debug(f"Channel {channel} amplitude set to {amplitude}")
@@ -41,29 +48,72 @@ class SiglentSDG1000X(AWG):
             raise
 
     def set_burst_delay(self, channel, delay: float):
+        """Sets burst delay for the specified channel."""
+
+        if not (channel == 1 and channel == 2):
+            raise InvalidChannelNumber(channel)
+
         try:
             self.write(f"C{channel}:BTWV DEL,{delay}")
             logging.debug(f"Channel {channel} burst delay has been set to {delay}")
         except Exception as e:
-            logging.error(f"Failed to set channel {channel} burst delay to {delay}") 
+            logging.error(f"Failed to set channel {channel} burst delay to {delay}: {e}")
 
-    def set_burst_mode(self, channel, state: bool):
+    def set_burst_mode(self, channel, burst_mode: BurstModeSiglent):
+        """Sets the mode of the burst for the specified channel"""
+
+        if not (channel == 1 and channel == 2):
+            raise InvalidChannelNumber(channel)
+
+        try:
+            self.write(f"C{channel}:BTWV GATE_NCYC,{burst_mode.value}")
+            logging.debug(f"Channel {channel} burst mode has been set to {burst_mode.value}")
+        except Exception as e:
+            logging.error(f"Failed to set channel {channel} burst mode to {burst_mode.value}: {e}")
+
+    def set_burst_period(self, channel, period: float):
+        """Sets the period of the burst for the specified channel."""
+
+        if not (channel == 1 and channel == 2):
+            raise InvalidChannelNumber(channel)
+
+        try:
+            self.write(f"C{channel}:BTWV PRD,{period}")
+            logging.debug(f"Channel {channel} burst period has been set to {period}")
+        except Exception as e:
+            logging.error(f"Failed to set channel {channel} burst period to {period}: {e}")
+
+    def set_burst_state(self, channel, state: bool):
+        """Sets the state of the burst for the specified channel."""
+
+        if not (channel == 1 and channel == 2):
+            raise InvalidChannelNumber(channel)
+
         state_str = "ON" if state else "OFF"
         try:
             self.write(f"C{channel}:BTWV STATE,{state_str}")
             logging.debug(f"Channel {channel} burst mode has been set to {state_str}")
         except Exception as e:
-            logging.error(f"Failed to set channel {channel} burst mode to {state_str}") 
+            logging.error(f"Failed to set channel {channel} burst mode to {state_str}: {e}")
 
-    def set_burst_period(self, channel, period: float):
+    def set_burst_trigger_source(self, channel, trigger_source: BurstTriggerSource):
+        """Sets the trigger source of the burst for the specified channel."""
+
+        if not (channel == 1 and channel == 2):
+            raise InvalidChannelNumber(channel)
+
         try:
-            self.write(f"C{channel}:BTWV PRD,{period}")
-            logging.debug(f"Channel {channel} burst period has been set to {period}")
+            self.write(f"C{channel}:BTWV TRSR,{trigger_source.value}")
+            logging.debug(f"Channel {channel} burst trigger source has been set to {trigger_source.value}")
         except Exception as e:
-            logging.error(f"Failed to set channel {channel} burst period to {period}") 
+            logging.error(f"Failed to set channel {channel} burst trigger source to {trigger_source.value}: {e}")
 
     def set_frequency(self, channel, frequency: float, unit: FrequencyUnit = FrequencyUnit.HZ):
         """Sets the frequency for the specified channel."""
+
+        if not (channel == 1 and channel == 2):
+            raise InvalidChannelNumber(channel)
+
         try:
             converted_frequency = frequency
             if unit == FrequencyUnit.KHZ:
@@ -79,6 +129,10 @@ class SiglentSDG1000X(AWG):
 
     def set_offset(self, channel, offset_voltage: float):
         """Sets the offset voltage for the specified channel."""
+
+        if not (channel == 1 and channel == 2):
+            raise InvalidChannelNumber(channel)
+
         try:
             self.write(f"C{channel}:BSWV OFST,{offset_voltage}")
             logging.debug(f"Channel {channel} offset voltage set to {offset_voltage} Vdc")
@@ -87,24 +141,38 @@ class SiglentSDG1000X(AWG):
             raise
 
     def set_output(self, channel, state: bool):
+        """Sets the output on the specified channel ON or OFF"""
+
+        if not (channel == 1 and channel == 2):
+            raise InvalidChannelNumber(channel)
+
         state_str = "ON" if state else "OFF"
         try:
             self.write(f"C{channel}:OUTP {state_str}")
             logging.debug(f"Channel {channel} output has been set to {state_str}")
         except Exception as e:
-            logging.error(f"Failed to set channel {channel} output to {state_str}")
+            logging.error(f"Failed to set channel {channel} output to {state_str}: {e}")
 
     def set_output_load(self, channel, load: str | int):
+        """Sets the output load for the specified channel."""
+
+        if not (channel == 1 and channel == 2):
+            raise InvalidChannelNumber(channel)
+
         if load == 'HZ' or load == 'INF':
             load = 'HZ'
         try:
             self.write(f"C{channel}:OUTP LOAD,{load}")
             logging.debug(f"Channel {channel} output load has been set to {load}")
         except Exception as e:
-            logging.error(f"Failed to set channel {channel} output load to {load}")
+            logging.error(f"Failed to set channel {channel} output load to {load}: {e}")
 
     def set_phase(self, channel, phase: float):
         """Sets the phase for the specified channel."""
+
+        if not (channel == 1 and channel == 2):
+            raise InvalidChannelNumber(channel)
+
         try:
             self.write(f"C{channel}:BSWV PHSE,{phase}")
             logging.debug(f"Channel {channel} phase set to {phase}°")
@@ -114,6 +182,10 @@ class SiglentSDG1000X(AWG):
 
     def set_waveform(self, channel, waveform_type: WaveformType):
         """Sets the waveform type for the specified channel."""
+
+        if not (channel == 1 and channel == 2):
+            raise InvalidChannelNumber(channel)
+
         try:
             self.write(f"C{channel}:BSWV WVTP,{waveform_type.value}")
             logging.debug(f"Channel {channel} waveform set to {waveform_type.value}")
@@ -129,3 +201,15 @@ class SiglentSDG1000X(AWG):
         except Exception as e:
             logging.error(f"Failed to synchronize phase: {e}")
             raise
+
+    def trigger_burst(self, channel):
+        """Triggers a burst from the specified channel."""
+
+        if not (channel == 1 and channel == 2):
+            raise InvalidChannelNumber(channel)
+
+        try:
+            self.write(f"C{channel}:BTWV MTRIG")
+            logging.debug(f"Burst on channel {channel} has been successfully triggered")
+        except Exception as e:
+            logging.error(f"Failed to trigger the burst on channel {channel}: {e}")
