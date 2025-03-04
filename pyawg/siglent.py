@@ -37,7 +37,7 @@ class SiglentSDG1000X(AWG):
     def set_amplitude(self: SiglentSDG1000X, channel: int, amplitude: float | int, unit: AmplitudeUnit = AmplitudeUnit.VPP) -> None:
         """Sets the amplitude for the specified channel."""
         
-        if type(c) is not int or not (c == 1 or c == 2):
+        if type(channel) is not int or not (channel == 1 or channel == 2):
             raise InvalidChannelNumber(channel)
         elif type(amplitude) is not float and type(amplitude) is not int:
             raise TypeError(f"'amplitude' must be float or int; received {type(amplitude)}")
@@ -56,7 +56,7 @@ class SiglentSDG1000X(AWG):
     def set_burst_delay(self: SiglentSDG1000X, channel: int, delay: float | int) -> None:
         """Sets burst delay for the specified channel."""
 
-        if type(c) is not int or not (c == 1 or c == 2):
+        if type(channel) is not int or not (channel == 1 or channel == 2):
             raise InvalidChannelNumber(channel)
         elif type(delay) is not float and type(delay) is not int:
             raise TypeError(f"'delay' must be float or int; received {type(delay)}")
@@ -72,7 +72,7 @@ class SiglentSDG1000X(AWG):
     def set_burst_mode(self: SiglentSDG1000X, channel: int, burst_mode: BurstModeSiglent) -> None:
         """Sets the mode of the burst for the specified channel"""
 
-        if type(c) is not int or not (c == 1 or c == 2):
+        if type(channel) is not int or not (channel == 1 or channel == 2):
             raise InvalidChannelNumber(channel)
         elif not isinstance(burst_mode, BurstModeSiglent):
             raise TypeError(f"'burst_mode' must be enum of type BurstModeSiglent. Hint: have you forgotten to import 'BurstModeSiglent' from 'pyawg'?")
@@ -86,7 +86,7 @@ class SiglentSDG1000X(AWG):
     def set_burst_period(self:SiglentSDG1000X, channel: int, period: float | int) -> None:
         """Sets the period of the burst for the specified channel."""
 
-        if type(c) is not int or not (c == 1 or c == 2):
+        if type(channel) is not int or not (channel == 1 or channel == 2):
             raise InvalidChannelNumber(channel)
         elif type(period) is not float and type(period) is not int:
             raise TypeError(f"'period' must be float or int; received {type(period)}")
@@ -102,7 +102,7 @@ class SiglentSDG1000X(AWG):
     def set_burst_state(self: SiglentSDG1000X, channel: int, state: bool) -> None:
         """Sets the state of the burst for the specified channel."""
 
-        if type(c) is not int or not (c == 1 or c == 2):
+        if type(channel) is not int or not (channel == 1 or channel == 2):
             raise InvalidChannelNumber(channel)
         elif type(state) is not bool:
             raise TypeError(f"'state' must be bool; received {type(state)}")
@@ -117,7 +117,7 @@ class SiglentSDG1000X(AWG):
     def set_burst_trigger_source(self: SiglentSDG1000X, channel: int, trigger_source: BurstTriggerSource) -> None:
         """Sets the trigger source of the burst for the specified channel."""
 
-        if type(c) is not int or not (c == 1 or c == 2):
+        if type(channel) is not int or not (channel == 1 or channel == 2):
             raise InvalidChannelNumber(channel)
         elif not isinstance(trigger_source, BurstTriggerSource):
             raise TypeError(f"'trigger_source' must be enum of type BurstTriggerSource. Hint: have you forgotten to import 'BurstTriggerSource' from 'pyawg'?")
@@ -131,7 +131,7 @@ class SiglentSDG1000X(AWG):
     def set_frequency(self: SiglentSDG1000X, channel: int, frequency: float | int, unit: FrequencyUnit = FrequencyUnit.HZ) -> None:
         """Sets the frequency for the specified channel."""
 
-        if type(c) is not int or not (c == 1 or c == 2):
+        if type(channel) is not int or not (channel == 1 or channel == 2):
             raise InvalidChannelNumber(channel)
         elif type(frequency) is not float and type(frequency) is not int:
             raise TypeError(f"'frequency' must be float or int; received {type(frequency)}")
@@ -157,7 +157,7 @@ class SiglentSDG1000X(AWG):
     def set_offset(self: SiglentSDG1000X, channel: int, offset_voltage: float | int) -> None:
         """Sets the offset voltage for the specified channel."""
 
-        if type(c) is not int or not (c == 1 or c == 2):
+        if type(channel) is not int or not (channel == 1 or channel == 2):
             raise InvalidChannelNumber(channel)
         elif type(offset_voltage) is not float and type(offset_voltage) is not int:
             raise TypeError(f"'offset_voltage' must be float or int; received {type(offset_voltage)}")
@@ -172,7 +172,7 @@ class SiglentSDG1000X(AWG):
     def set_output(self: SiglentSDG1000X, channel: int, state: bool) -> None:
         """Sets the output on the specified channel ON or OFF"""
 
-        if type(c) is not int or not (c == 1 or c == 2):
+        if type(channel) is not int or not (channel == 1 or channel == 2):
             raise InvalidChannelNumber(channel)
         elif type(state) is not bool:
             raise TypeError(f"'state' must be bool; received {type(state)}")
@@ -188,7 +188,7 @@ class SiglentSDG1000X(AWG):
     def set_output_load(self:SiglentSDG1000X, channel: int, load: OutputLoad | int | float) -> None:
         """Sets the output load for the specified channel."""
 
-        if type(c) is not int or not (c == 1 or c == 2):
+        if type(channel) is not int or not (channel == 1 or channel == 2):
             raise InvalidChannelNumber(channel)
         elif type(load) is not float and type(load) is not int and not isinstance(load, OutputLoad):
             raise TypeError(f"'load' must be float or int or enum of type OutputLoad; received {type(load)}. Hint: did you forget to import 'OutputLoad' from 'pyawg'?")
@@ -204,7 +204,7 @@ class SiglentSDG1000X(AWG):
     def set_phase(self: SiglentSDG1000X, channel: int, phase: float | int) -> None:
         """Sets the phase for the specified channel."""
 
-        if type(c) is not int or not (c == 1 or c == 2):
+        if type(channel) is not int or not (channel == 1 or channel == 2):
             raise InvalidChannelNumber(channel)
         elif type(phase) is not float and type(phase) is not int:
             raise TypeError(f"'phase' must be float or int; received {type(phase)}")
@@ -221,7 +221,7 @@ class SiglentSDG1000X(AWG):
     def set_waveform(self: SiglentSDG1000X, channel: int, waveform_type: WaveformType) -> None:
         """Sets the waveform type for the specified channel."""
 
-        if type(c) is not int or not (c == 1 or c == 2):
+        if type(channel) is not int or not (channel == 1 or channel == 2):
             raise InvalidChannelNumber(channel)
         elif not isinstance(waveform_type, WaveformType):
             raise TypeError(f"'waveform_type' must be enum of type WaveformType. Hint: have you forgotten to import 'WaveformType' from 'pyawg'?")
@@ -246,7 +246,7 @@ class SiglentSDG1000X(AWG):
     def trigger_burst(self: SiglentSDG1000X, channel: int) -> None:
         """Triggers a burst from the specified channel."""
 
-        if type(c) is not int or not (c == 1 or c == 2):
+        if type(channel) is not int or not (channel == 1 or channel == 2):
             raise InvalidChannelNumber(channel)
 
         try:
