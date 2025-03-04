@@ -162,7 +162,7 @@ class RigolDG1000Z(AWG):
         if not (channel == 1 or channel == 2):
             raise InvalidChannelNumber(channel)
         elif type(load) is not float and type(load) is not int and not isinstance(load, OutputLoad):
-            raise TypeError(f"'load' must be float or int or enum of type OutputLoad; received {type(state)}. Hint: did you forget to import 'OutputLoad' from 'pyawg'?")
+            raise TypeError(f"'load' must be float or int or enum of type OutputLoad; received {type(load)}. Hint: did you forget to import 'OutputLoad' from 'pyawg'?")
 
         if load == OutputLoad.HZ or load == OutputLoad.INF:
             load = 'INF'
