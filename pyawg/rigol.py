@@ -13,8 +13,22 @@ class RigolDG1000Z(AWG):
         logging.debug("RigolDG1000Z instance created.")
 
     def set_amplitude(self: RigolDG1000Z, channel: int, amplitude: float | int, unit: AmplitudeUnit = AmplitudeUnit.VPP) -> None:
-        """Sets the amplitude for the specified channel."""
+        """
+        Sets the amplitude for the specified channel.
 
+        Parameters:
+        self (RigolDG1000Z): The instance of the RigolDG1000Z class.
+        channel (int): The channel number (must be 1 or 2).
+        amplitude (float | int): The amplitude value to set (must be between -10 and 10).
+        unit (AmplitudeUnit, optional): The unit of the amplitude (default is AmplitudeUnit.VPP).
+
+        Raises:
+        InvalidChannelNumber: If the channel number is not 1 or 2.
+        TypeError: If the amplitude is not a float or int, or if the unit is not an instance of AmplitudeUnit.
+        ValueError: If the amplitude is not between -10 and 10.
+        Exception: If there is an error in writing the command to the device.
+
+        """
         if type(channel) is not int or not (channel == 1 or channel == 2):
             raise InvalidChannelNumber(channel)
         elif type(amplitude) is not float and type(amplitude) is not int:
@@ -32,6 +46,23 @@ class RigolDG1000Z(AWG):
             raise
 
     def set_burst_delay(self: RigolDG1000Z, channel: int, delay: float | int) -> None:
+        """
+        Sets the burst delay for the specified channel on the Rigol DG1000Z.
+
+        Parameters:
+        self (RigolDG1000Z): The instance of the RigolDG1000Z class.
+        channel (int): The channel number (must be 1 or 2).
+        delay (float | int): The delay time in seconds (must be non-negative).
+
+        Raises:
+        InvalidChannelNumber: If the channel number is not 1 or 2.
+        TypeError: If the delay is not a float or int.
+        ValueError: If the delay is negative.
+
+        Logs:
+        Debug: When the burst delay is successfully set.
+        Error: If there is a failure in setting the burst delay.
+        """
         """Sets burst delay for the specified channel."""
 
         if type(channel) is not int or not (channel == 1 or channel == 2):

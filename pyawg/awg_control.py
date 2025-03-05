@@ -7,6 +7,18 @@ import re
 def awg_control(ip_address: str) -> AWG:
     """
     Factory function to create AWG instances based on device identification.
+        Args:
+            ip_address (str): The IP address of the AWG device.
+
+        Returns:
+            AWG: An instance of a specific AWG subclass based on the identified model.
+
+        Raises:
+            ValueError: If the AWG device model is unsupported.
+            Exception: If there is an error in identifying the AWG device.
+
+        Example:
+            awg = awg_control("192.168.1.100")
     """
     try:
         # Create a generic AWG instance to identify the device
