@@ -4,7 +4,7 @@ from .siglent import SiglentSDG1000X
 import logging
 import re
 
-def awg_control(ip_address: str) -> AWG:
+def awg_control(ip_address: str) -> RigolDG1000Z | SiglentSDG1000X:
     """
     Factory function to create AWG instances based on device identification.
         Args:
