@@ -150,6 +150,19 @@ class AWG:
             logging.error(f"Failed to query command: {e}")
             raise
 
+    def reset(self: AWG) -> None:
+        """
+        Sends a query command to the device and returns the response.
+
+        Raises:
+            Exception: If there is an error in sending the query or receiving the response.
+        """
+        try:
+            response = self.device.write('*RST')
+        except Exception as e:
+            logging.error(f"Failed to query command: {e}")
+            raise
+
     def write(self: AWG, command: str) -> None:
         """
         Sends a command to the device.
