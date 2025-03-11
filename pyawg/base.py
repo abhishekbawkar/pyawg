@@ -4,13 +4,14 @@ import json
 import logging
 
 import vxi11
+from abc import ABC, abstractmethod
 
-from .enums import WaveformType, AmplitudeUnit, FrequencyUnit
+from .enums import AmplitudeUnit, BurstModeRigol, BurstModeSiglent, BurstTriggerSource, FrequencyUnit, OutputLoad, WaveformType
 
 
-class AWG:
+class AWG(ABC):
     """
-    A class to represent an Arbitrary Waveform Generator (AWG) device.
+    An Abstract Base Class to represent an Arbitrary Waveform Generator (AWG) device.
 
     Attributes:
         ip_addr : str
@@ -162,6 +163,76 @@ class AWG:
         except Exception as e:
             logging.error(f"Failed to query command: {e}")
             raise
+
+    @abstractmethod
+    def set_amplitude(self: AWG, channel, amplitude: float, unit: AmplitudeUnit = AmplitudeUnit.VPP) -> None:
+        """Sets the amplitude for the specified channel."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def set_burst_delay(self: AWG, channel: int, delay: float | int) -> None:
+        """Sets the burst dealy for the specified channel."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def set_burst_mode(self: AWG, channel: int, mode: BurstModeRigol | BurstModeSiglent) -> None:
+        """Sets the burst mode for the specified channel."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def set_burst_period(self: AWG, channel: int, period: float | int) -> None:
+        """Sets the burst period for the specified channel."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def set_burst_state(self: AWG, channel: int, state: bool) -> None:
+        """Sets the state for the specified channel."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def set_burst_trigger_source(self: AWG, channel: int, trigger_source: BurstTriggerSource) -> None:
+        """Sets the burst trigger source for the specified channel."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def set_frequency(self: AWG, channel: int, frequency: float, unit: FrequencyUnit = FrequencyUnit.HZ) -> None:
+        """Sets the frequency for the specified channel."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def set_offset(self: AWG, channel: int, offset_voltage: float | int) -> None:
+        """Sets the offset voltage for the specified channel."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def set_output(self: AWG, channel: int, state: bool) -> None:
+        """Sets the output state of the specified channel."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def set_output_load(self: AWG, channel: int, load: float | int | OutputLoad) -> None:
+        """Sets the output load for the specified channel."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def set_phase(self: AWG, channel: int, phase: float | int) -> None:
+        """Sets the phase for the specified channel."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def set_waveform(self: AWG, channel: int, waveform_type: WaveformType) -> None:
+        """Sets the waveform type for the specified channel."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def sync_phase(self: AWG, channel: int) -> None:
+        """Synchronizes the phase of the specified channel with the other channel."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def trigger_burst(self: AWG, channel: int) -> None:
+        """Triggers a burst on the specified channel."""
+        raise NotImplementedError
 
     def write(self: AWG, command: str) -> None:
         """
