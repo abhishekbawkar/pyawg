@@ -179,7 +179,7 @@ class RigolDG1000Z(AWG):
 
     def set_burst_state(self: RigolDG1000Z, channel: int, state: bool) -> None:
         """
-        Set the burst state for a specified channel on the Rigol DG1000Z.
+        Sets the burst state for the specified channel on the Rigol DG1000Z.
 
         Args:
             channel (int): The channel number to set the burst state for. Must be 1 or 2.
@@ -208,7 +208,7 @@ class RigolDG1000Z(AWG):
 
     def set_burst_trigger_source(self: RigolDG1000Z, channel: int, trigger_source: BurstTriggerSource) -> None:
         """
-        Set the burst trigger source for a specified channel on the Rigol DG1000Z.
+        Sets the burst trigger source for the specified channel on the Rigol DG1000Z.
 
         Args:
             self (RigolDG1000Z): The instance of the RigolDG1000Z class.
@@ -237,7 +237,7 @@ class RigolDG1000Z(AWG):
 
     def set_frequency(self: RigolDG1000Z, channel: int, frequency: float | int, unit: FrequencyUnit = FrequencyUnit.HZ) -> None:
         """
-        Set the frequency for a specified channel on the Rigol DG1000Z.
+        Sets the frequency for the specified channel on the Rigol DG1000Z.
 
         Args:
             self (RigolDG1000Z): The instance of the RigolDG1000Z class.
@@ -333,9 +333,9 @@ class RigolDG1000Z(AWG):
         except Exception as e:
             logging.error(f"Failed to set channel {channel} output to {state_str}: {e}")
 
-    def set_output_load(self: RigolDG1000Z, channel: int, load: OutputLoad | int | float) -> None:
+    def set_output_load(self: RigolDG1000Z, channel: int, load:  float | int | OutputLoad) -> None:
         """
-        Set the output load for a specified channel on the Rigol DG1000Z.
+        Set the output load for the specified channel on the Rigol DG1000Z.
         
         Args:
             self (RigolDG1000Z): The instance of the RigolDG1000Z class.
@@ -431,7 +431,7 @@ class RigolDG1000Z(AWG):
 
     def sync_phase(self: RigolDG1000Z, channel: int = 1) -> None:
         """
-        Synchronize the phase of the specified channel with the other channel.
+        Synchronizes the phase of the specified channel with the other channel.
         
         This method sends a command to the Rigol DG1000Z function generator to 
         synchronize the phase of the specified channel with the other channel.

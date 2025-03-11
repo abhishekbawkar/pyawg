@@ -220,7 +220,7 @@ class SiglentSDG1000X(AWG):
 
     def set_burst_state(self: SiglentSDG1000X, channel: int, state: bool) -> None:
         """
-        Set the burst state for a specified channel on the Siglent SDG1000X.
+        Sets the burst state for the specified channel on the Siglent SDG1000X.
 
         Args:
             channel (int): The channel number to set the burst state for. Must be 1 or 2.
@@ -249,7 +249,7 @@ class SiglentSDG1000X(AWG):
 
     def set_burst_trigger_source(self: SiglentSDG1000X, channel: int, trigger_source: BurstTriggerSource) -> None:
         """
-        Set the burst trigger source for a specified channel on the Siglent SDG1000X.
+        Sets the burst trigger source for the specified channel on the Siglent SDG1000X.
 
         Args:
             self (SiglentSDG1000X): The instance of the SiglentSDG1000X class.
@@ -278,7 +278,7 @@ class SiglentSDG1000X(AWG):
 
     def set_frequency(self: SiglentSDG1000X, channel: int, frequency: float | int, unit: FrequencyUnit = FrequencyUnit.HZ) -> None:
         """
-        Set the frequency for a specified channel on the Siglent SDG1000X.
+        Sets the frequency for the specified channel on the Siglent SDG1000X.
 
         Args:
             self (SiglentSDG1000X): The instance of the SiglentSDG1000X class.
@@ -381,9 +381,9 @@ class SiglentSDG1000X(AWG):
         except Exception as e:
             logging.error(f"Failed to set channel {channel} output to {state_str}: {e}")
 
-    def set_output_load(self:SiglentSDG1000X, channel: int, load: OutputLoad | int | float) -> None:
+    def set_output_load(self:SiglentSDG1000X, channel: int, load:  float | int | OutputLoad) -> None:
         """
-        Set the output load for a specified channel on the Siglent SDG1000X.
+        Set the output load for the specified channel on the Siglent SDG1000X.
         
         Args:
             self (SiglentSDG1000X): The instance of the SiglentSDG1000X class.
@@ -477,15 +477,15 @@ class SiglentSDG1000X(AWG):
             logging.error(f"Failed to set channel {channel} waveform to {waveform_type.value}: {e}")
             raise
 
-    def sync_phase(self: SiglentSDG1000X, _channel: int = 1) -> None:
+    def sync_phase(self: SiglentSDG1000X, channel: int = 1) -> None:
         """
-        Synchronize the phase of the specified channel with the other channel.
+        Synchronizes the phase of the specified channel with the other channel.
         
         This method sends a command to the Siglent SDG1000X function generator to 
         synchronize the phase of the specified channel with the other channel.
         
         Args:
-            _channel (int): purposely unsed parameter to match the method signature of the SiglentSDG1000X class.
+            channel (int): unsed parameter, kept only to match the method signature of the base class.
         
         Raises:
             InvalidChannelNumber: If the channel number is not 1 or 2.
