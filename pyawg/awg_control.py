@@ -4,6 +4,8 @@ from .siglent import SiglentSDG1000X
 import logging
 import re
 
+import vxi11
+
 def awg_control(ip_address: str) -> RigolDG1000Z | SiglentSDG1000X:
     """
     Factory function to create AWG instances based on device identification.
@@ -22,8 +24,8 @@ def awg_control(ip_address: str) -> RigolDG1000Z | SiglentSDG1000X:
     """
     try:
         # Create a generic AWG instance to identify the device
-        temp_awg = AWG(ip_address)
-        model = temp_awg.model
+        temp_awg = vxi11.Instrument(ip_address)
+        manufacturer, model, serial_number, fw_version = temp_awg.ask('*IDN?').strip().split(',')
         temp_awg.close()  # Close the temporary connection
 
         if re.match('^(DG10[3|6]2Z)$', model):
