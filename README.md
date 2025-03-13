@@ -22,7 +22,7 @@ Currently following function generators are supported. Volunteers are welcome to
 
 Installation of the library is very simple via `pip` command as shown below.
 
-```console
+```
 >>> pip install pyawg
 ```
 
@@ -30,7 +30,7 @@ Installation of the library is very simple via `pip` command as shown below.
 
 Here is an exmaple with Rigol DG1032Z Arbitrary Waveform Generator. For the variants from other manufacturers, the `DEBUG` logs would be printed slightly different based on their respective syntax. 
 
-```pycon
+```
 >>> from pyawg import awg_control, AmplitudeUnit, FrequencyUnit, WaveformType
 
 >>> # Example for Square Wave of 10KHz, 5VPP with offset of 2.5V and phase shift of 90°
