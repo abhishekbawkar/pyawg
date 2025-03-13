@@ -289,6 +289,7 @@ class SiglentSDG1000X(AWG):
             InvalidChannelNumber: If the channel number is not 1 or 2.
             TypeError: If the datatype of duty_cycle is neither float nor int.
             ValueError: If the duty_cycle is not between 0 and 100.
+            Exception: If there is an error in writing the duty cycle to the device.
 
         Returns:
             None
@@ -303,7 +304,7 @@ class SiglentSDG1000X(AWG):
             raise ValueError(f"'duty_cycle' must be between 0 and 100")
 
         try:
-            self.write(f"SOUR{channel}:PULS:DCYC {duty_cycle}")
+            self.write(f"C{channel}:BSWV DUTY,{duty_cycle}")
             logging.debug(f"Channel {channel} duty cycle has been set to {duty_cycle}")
         except Exception as e:
             logging.error(f"Failed to set channel {channel} duty cycle source to {duty_cycle}: {e}")
@@ -490,6 +491,8 @@ class SiglentSDG1000X(AWG):
         Raises:
             InvalidChannelNumber: If the channel number is not 1 or 2.
             TypeError: If the datatype of pulse_width is neither float nor int.
+            ValueError: If the pulse_width is negative.
+            Exception: If there is an error in writing the pulse width to the device.
 
         Returns:
             None
@@ -499,10 +502,12 @@ class SiglentSDG1000X(AWG):
         if type(channel) is not int or not (channel == 1 or channel == 2):
             raise InvalidChannelNumber(channel)
         elif type(pulse_width) is not float and type(pulse_width) is not int:
-            raise TypeError(f"'duty_cycle' must be float or int; received {type(pulse_width)}")
+            raise TypeError(f"'pulse_width' must be float or int; received {type(pulse_width)}")
+        elif pulse_width < 0:
+            raise ValueError(f"'pulse_width' cannot be negative; received {pulse_width}")
 
         try:
-            self.write(f"SOUR{channel}:PULS:WIDT {pulse_width}")
+            self.write(f"C{channel}:BSWV WIDTH,{pulse_width}")
             logging.debug(f"Channel {channel} duty cycle has been set to {pulse_width}")
         except Exception as e:
             logging.error(f"Failed to set channel {channel} duty cycle source to {pulse_width}: {e}")
