@@ -10,11 +10,12 @@ import os
 import sys
 
 sys.path.insert(0, os.path.abspath("../"))
+print(f'Python path: {sys.path}')
 
 project = 'PyAWG'
 copyright = '2025, Abhishek Bawkar'
 author = 'Abhishek Bawkar'
-release = '0.3.3.0'
+release = '0.3.7.1'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
