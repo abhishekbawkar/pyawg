@@ -15,3 +15,12 @@ documentation for details.
    :maxdepth: 2
    :caption: Contents:
 
+.. automodule:: pyawg.rigol
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: pyawg.siglent
+   :members:
+   :undoc-members:
+   :show-inheritance:
