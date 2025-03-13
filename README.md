@@ -22,7 +22,7 @@ Currently following function generators are supported. Volunteers are welcome to
 
 Installation of the library is very simple via `pip` command as shown below.
 
-```command
+```console
 >>> pip install pyawg
 ```
 
