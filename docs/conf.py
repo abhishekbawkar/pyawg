@@ -9,7 +9,7 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath("../pyawg"))
+sys.path.insert(0, os.path.abspath("../"))
 
 project = 'PyAWG'
 copyright = '2025, Abhishek Bawkar'
