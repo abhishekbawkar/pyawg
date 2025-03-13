@@ -7,7 +7,7 @@ PyAWG documentation
 ===================
 include:: ../README.md
 
-.. toctree::
+toctree::
    :maxdepth: 3
    :caption: Contents:
 
