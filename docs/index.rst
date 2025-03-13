@@ -5,18 +5,18 @@
 
 PyAWG documentation
 ===================
-.. include:: ../README.md
+include:: ../README.md
 
 .. toctree::
    :maxdepth: 3
    :caption: Contents:
 
-.. automodule:: pyawg.rigol
+automodule:: pyawg.rigol
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: pyawg.siglent
+automodule:: pyawg.siglent
    :members:
    :undoc-members:
    :show-inheritance:
