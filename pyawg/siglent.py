@@ -276,6 +276,38 @@ class SiglentSDG1000X(AWG):
         except Exception as e:
             logging.error(f"Failed to set channel {channel} burst trigger source to {trigger_source.value}: {e}")
 
+    def set_duty_cycle(self: SiglentSDG1000X, channel: int, duty_cycle: float | int) -> None:
+        """
+        Sets the duty cycle for the specified channel on the Siglent SDG1000X.
+
+        Args:
+            self (SiglentSDG1000X): The instance of the SiglentSDG1000X class.
+            channel (int): The channel number (must be 1 or 2).
+            duty_cycle (float | int): The duty cycle, which must be either float or int and should be between 0 and 100.
+
+        Raises:
+            InvalidChannelNumber: If the channel number is not 1 or 2.
+            TypeError: If the datatype of duty_cycle is neither float nor int.
+            ValueError: If the duty_cycle is not between 0 and 100.
+
+        Returns:
+            None
+        
+        """
+
+        if type(channel) is not int or not (channel == 1 or channel == 2):
+            raise InvalidChannelNumber(channel)
+        elif type(duty_cycle) is not float and type(duty_cycle) is not int:
+            raise TypeError(f"'duty_cycle' must be float or int; received {type(duty_cycle)}")
+        elif not (0 <= duty_cycle <= 100):
+            raise ValueError(f"'duty_cycle' must be between 0 and 100")
+
+        try:
+            self.write(f"SOUR{channel}:PULS:DCYC {duty_cycle}")
+            logging.debug(f"Channel {channel} duty cycle has been set to {duty_cycle}")
+        except Exception as e:
+            logging.error(f"Failed to set channel {channel} duty cycle source to {duty_cycle}: {e}")
+
     def set_frequency(self: SiglentSDG1000X, channel: int, frequency: float | int, unit: FrequencyUnit = FrequencyUnit.HZ) -> None:
         """
         Sets the frequency for the specified channel on the Siglent SDG1000X.
@@ -445,6 +477,35 @@ class SiglentSDG1000X(AWG):
         except Exception as e:
             logging.error(f"Failed to set channel {channel} phase to {phase}°: {e}")
             raise
+
+    def set_pulse_width(self: SiglentSDG1000X, channel: int, pulse_width: float | int) -> None:
+        """
+        Sets the pulse width for the specified channel on the Siglent SDG1000X.
+
+        Args:
+            self (SiglentSDG1000X): The instance of the SiglentSDG1000X class.
+            channel (int): The channel number (must be 1 or 2).
+            pulse_width (float | int): The pulse width, which must be either float or int.
+
+        Raises:
+            InvalidChannelNumber: If the channel number is not 1 or 2.
+            TypeError: If the datatype of pulse_width is neither float nor int.
+
+        Returns:
+            None
+        
+        """
+
+        if type(channel) is not int or not (channel == 1 or channel == 2):
+            raise InvalidChannelNumber(channel)
+        elif type(pulse_width) is not float and type(pulse_width) is not int:
+            raise TypeError(f"'duty_cycle' must be float or int; received {type(pulse_width)}")
+
+        try:
+            self.write(f"SOUR{channel}:PULS:WIDT {pulse_width}")
+            logging.debug(f"Channel {channel} duty cycle has been set to {pulse_width}")
+        except Exception as e:
+            logging.error(f"Failed to set channel {channel} duty cycle source to {pulse_width}: {e}")
 
     def set_waveform(self: SiglentSDG1000X, channel: int, waveform_type: WaveformType) -> None:
         """
