@@ -195,6 +195,11 @@ class AWG(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def set_duty_cycle(self: AWG, channel: int, duty_cycle: float | int) -> None:
+        """Sets the duty cycle for the specified channel."""
+        raise NotImplementedError
+
+    @abstractmethod
     def set_frequency(self: AWG, channel: int, frequency: float, unit: FrequencyUnit = FrequencyUnit.HZ) -> None:
         """Sets the frequency for the specified channel."""
         raise NotImplementedError
@@ -217,6 +222,11 @@ class AWG(ABC):
     @abstractmethod
     def set_phase(self: AWG, channel: int, phase: float | int) -> None:
         """Sets the phase for the specified channel."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def set_pulse_width(self: AWG, channel: int, pulse_width: float | int) -> None:
+        """Sets the pulse width for the specified channel."""
         raise NotImplementedError
 
     @abstractmethod
