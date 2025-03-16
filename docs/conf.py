@@ -36,6 +36,9 @@ autodoc_default_options = {
     'exclude-members': '__weakref__'  # Optional: exclude specific members
 }
 
+autodoc_pydantic_model_show_validator_members = False
+autoclass_content = "class"
+
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
