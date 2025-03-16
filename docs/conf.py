@@ -20,12 +20,21 @@ release = '0.3.7.1'
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ["sphinx.ext.autodoc"]
+extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
+]
 
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
-
+# Show inherited members for classes
+autodoc_default_options = {
+    'members': True,
+    'inherited-members': True,  # Explicitly include inherited members
+    'show-inheritance': True,
+    'exclude-members': '__weakref__'  # Optional: exclude specific members
+}
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
