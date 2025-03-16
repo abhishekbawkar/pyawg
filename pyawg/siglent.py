@@ -309,6 +309,28 @@ class SiglentSDG1000X(AWG):
         except Exception as e:
             logging.error(f"Failed to set channel {channel} duty cycle source to {duty_cycle}: {e}")
 
+    def set_channel_wave_parameter(
+            self: SiglentSDG1000X, 
+            channel: int, 
+            waveform_type: WaveformType, 
+            frequency: float | int,
+            amplitude: float | int,
+            offset: float | int,
+            phase: float | int
+            ) -> None:
+        """
+        Sets the waveform parameters for the specified channel.
+
+        Args:
+            channel (int): The channel number to set the waveform parameters for.
+            parameter (str): The specific parameter to set. Valid options are 'waveform_type', 'frequency', 'period', 'amplitude', 'offset', 'high_level', 'low_level', and 'phase'.
+            value (str): The value to set for the specified parameter.
+
+        Raises:
+            Exception: If there is an error in setting the waveform
+        """
+        pass
+
     def set_frequency(self: SiglentSDG1000X, channel: int, frequency: float | int, unit: FrequencyUnit = FrequencyUnit.HZ) -> None:
         """
         Sets the frequency for the specified channel on the Siglent SDG1000X.
