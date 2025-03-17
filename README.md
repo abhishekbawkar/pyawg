@@ -38,9 +38,6 @@ Here is an exmaple with Rigol DG1032Z Arbitrary Waveform Generator. For the vari
 >>> awg = awg_control('192.168.1.100')
 [2025.03.06 21:12:46][DEBUG] Connected to AWG at 192.168.1.100
 [2025.03.06 21:12:46][DEBUG] Sent query: *IDN?, Received: Rigol Technologies,DG1032Z,DG1ZA2012604407,03.01.12  
-[2025.03.06 21:12:46][DEBUG] Disconnected from AWG
-[2025.03.06 21:12:46][DEBUG] Connected to AWG at 192.168.1.100
-[2025.03.06 21:12:46][DEBUG] Sent query: *IDN?, Received: Rigol Technologies,DG1032Z,DG1ZA2012604407,03.01.12  
 [2025.03.06 21:12:46][DEBUG] RigolDG1000Z instance created.
 
 >>> awg.set_waveform(1, WaveformType.SQUARE)
