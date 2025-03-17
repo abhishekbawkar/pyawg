@@ -49,6 +49,11 @@ class AWG(ABC):
     model: str
     serial_number: str
     fw_version: str
+    MAX_CHANNELS: int
+    MAX_FREQUENCY: float | int
+    MIN_FREQUENCY: float | int
+    MAX_AMPLITUDE: float | int
+    MIN_AMPLITUDE: float | int
 
     def __init__(self: AWG, ip_addr: str):
         """
@@ -104,36 +109,6 @@ class AWG(ABC):
             ),
             indent=2
         )
-
-    @property
-    @abstractmethod
-    def MAX_AMPLITUDE(self) -> int:
-        """The maximum amplitude supported by the AWG device."""
-        pass
-
-    @property
-    @abstractmethod
-    def MAX_CHANNELS(self) -> int:
-        """The maximum number of channels supported by the AWG device."""
-        pass
-
-    @property
-    @abstractmethod
-    def MAX_FREQUENCY(self) -> int:
-        """The maximum frequency supported by the AWG device."""
-        pass
-
-    @property
-    @abstractmethod
-    def MIN_AMPLITUDE(self) -> int:
-        """The minimum amplitude supported by the AWG device."""
-        pass
-
-    @property
-    @abstractmethod
-    def MIN_FREQUENCY(self) -> int:
-        """The minimum frequency supported by the AWG device."""
-        pass
 
     def _validate_amplitude(self: AWG, amplitude: float | int) -> None:
         """

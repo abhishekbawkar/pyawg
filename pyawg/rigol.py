@@ -43,11 +43,11 @@ class RigolDG1000Z(AWG):
         super().__init__(ip_address)
         logging.debug("RigolDG1000Z instance created.")
 
-        self.MAX_CHANNELS = self.query(":SYST:CHAN:NUM?")
-        self.MAX_FREQUENCY = self.query(":SOUR:FREQ:MAX?")
-        self.MIN_FREQUENCY = self.query(":SOUR:FREQ:MIN?")
-        self.MAX_AMPLITUDE = self.query(":SOUR:VOLT:AMPL:MAX?")
-        self.MIN_AMPLITUDE = self.query(":SOUR:VOLT:AMPL:MIN?")
+        self.MAX_CHANNELS = int(self.query(":SYST:CHAN:NUM?"))
+        self.MAX_FREQUENCY = float(self.query(":SOUR:FREQ:MAX?"))
+        self.MIN_FREQUENCY = float(self.query(":SOUR:FREQ:MIN?"))
+        self.MAX_AMPLITUDE = float(self.query(":SOUR:VOLT:AMPL:MAX?"))
+        self.MIN_AMPLITUDE = float(self.query(":SOUR:VOLT:AMPL:MIN?"))
 
     def set_amplitude(self: RigolDG1000Z, channel: int, amplitude: float | int, unit: AmplitudeUnit = AmplitudeUnit.VPP) -> None:
         """
@@ -103,7 +103,7 @@ class RigolDG1000Z(AWG):
         self._validate_channel(channel)
         if not isinstance(delay, (float, int)):
             raise TypeError(f"'delay' must be float or int; received {type(delay)}")
-        if delay < 0:
+        elif delay < 0:
             raise ValueError(f"'delay' cannot be negative")
 
         try:
@@ -310,7 +310,7 @@ class RigolDG1000Z(AWG):
         self._validate_channel(channel)
         if not isinstance(offset_voltage, (float, int)):
             raise TypeError(f"'offset_voltage' must be float or int; received {type(offset_voltage)}")
-        
+
         try:
             self.write(f"SOUR{channel}:VOLT:OFFS {offset_voltage}")
             logging.debug(f"Channel {channel} offset voltage set to {offset_voltage} Vdc")
@@ -329,6 +329,7 @@ class RigolDG1000Z(AWG):
         Raises:
             InvalidChannelNumber: If the channel number is not 1 or 2.
             TypeError: If the state is not a boolean.
+            Exception: If there is an error in writing the phase to the device.
 
         Returns:
             None
@@ -338,7 +339,6 @@ class RigolDG1000Z(AWG):
         if type(state) is not bool:
             raise TypeError(f"'state' must be bool; received {type(state)}")
 
-
         state_str = "ON" if state else "OFF"
         try:
             self.write(f"OUTP{channel} {state_str}")
@@ -346,7 +346,7 @@ class RigolDG1000Z(AWG):
         except Exception as e:
             logging.error(f"Failed to set channel {channel} output to {state_str}: {e}")
 
-    def set_output_load(self: RigolDG1000Z, channel: int, load:  float | int | OutputLoad) -> None:
+    def set_output_load(self: RigolDG1000Z, channel: int, load: float | int | OutputLoad) -> None:
         """
         Set the output load for the specified channel on the Rigol DG1000Z.
         
@@ -358,7 +358,8 @@ class RigolDG1000Z(AWG):
         Raises:
             InvalidChannelNumber: If the channel number is not 1 or 2.
             TypeError: If the load is not a float, int, or an instance of OutputLoad.
-        
+            Exception: If there is an error in writing the phase to the device.
+
         Returns:
             None
 
@@ -510,7 +511,7 @@ class RigolDG1000Z(AWG):
 
         """
         self._validate_channel(channel)
-        
+
         try:
             self.write(f"SOUR{channel}:BURS:TRIG")
             logging.debug(f"Burst on channel {channel} has been successfully triggered")
