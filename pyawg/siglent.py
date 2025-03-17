@@ -34,6 +34,8 @@ class SiglentSDG1000X(AWG):
             
     """
 
+    MAX_CHANNELS: int = 2
+
     def __init__(self, ip_address):
         """
         Initialize a SiglentSDG1000X instance.

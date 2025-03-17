@@ -4,7 +4,6 @@ import logging
 
 from .base import AWG
 from .enums import AmplitudeUnit, BurstModeRigol, BurstTriggerSource, FrequencyUnit, OutputLoad, WaveformType
-from .exceptions import *
 
 
 class RigolDG1000Z(AWG):
@@ -44,6 +43,12 @@ class RigolDG1000Z(AWG):
         super().__init__(ip_address)
         logging.debug("RigolDG1000Z instance created.")
 
+        self.MAX_CHANNELS = self.query(":SYST:CHAN:NUM?")
+        self.MAX_FREQUENCY = self.query(":SOUR:FREQ:MAX?")
+        self.MIN_FREQUENCY = self.query(":SOUR:FREQ:MIN?")
+        self.MAX_AMPLITUDE = self.query(":SOUR:VOLT:AMPL:MAX?")
+        self.MIN_AMPLITUDE = self.query(":SOUR:VOLT:AMPL:MIN?")
+
     def set_amplitude(self: RigolDG1000Z, channel: int, amplitude: float | int, unit: AmplitudeUnit = AmplitudeUnit.VPP) -> None:
         """
         Sets the amplitude for the specified channel on the RigolDG1000Z.
@@ -64,14 +69,9 @@ class RigolDG1000Z(AWG):
             None
 
         """
-
-        if type(channel) is not int or not (channel == 1 or channel == 2):
-            raise InvalidChannelNumber(channel)
-        elif type(amplitude) is not float and type(amplitude) is not int:
-            raise TypeError(f"'amplitude' must be float or int; received {type(amplitude)}")
-        elif not (-10 <= amplitude <= 10):
-            raise ValueError(f"'amplitude' must be between -/+ 10")
-        elif not isinstance(unit, AmplitudeUnit):
+        self._validate_channel(channel)
+        self._validate_amplitude(amplitude)
+        if not isinstance(unit, AmplitudeUnit):
             raise TypeError(f"'unit' must be enum of type AmplitudeUnit. Hint: have you forgotten to import 'AmplitudeType' from 'pyawg'?")
 
         try:
@@ -94,17 +94,16 @@ class RigolDG1000Z(AWG):
             InvalidChannelNumber: If the channel number is not 1 or 2.
             TypeError: If the delay is not a float or int.
             ValueError: If the delay is negative.
+            Exception: If there is an error in writing the command to the device.
 
         Returns:
             None
         
         """
-
-        if type(channel) is not int or not (channel == 1 or channel == 2):
-            raise InvalidChannelNumber(channel)
-        elif type(delay) is not float and type(delay) is not int:
+        self._validate_channel(channel)
+        if not isinstance(delay, (float, int)):
             raise TypeError(f"'delay' must be float or int; received {type(delay)}")
-        elif delay < 0:
+        if delay < 0:
             raise ValueError(f"'delay' cannot be negative")
 
         try:
@@ -124,19 +123,14 @@ class RigolDG1000Z(AWG):
         Raises:
             InvalidChannelNumber: If the channel number is not 1 or 2.
             TypeError: If burst_mode is not an instance of BurstModeRigol.
-
-        Logs:
-            Debug: When the burst mode is successfully set.
-            Error: If there is a failure in setting the burst mode.
+            Exception: If there is an error in writing the command to the device.
 
         Returns:
             None
         
         """
-
-        if type(channel) is not int or not (channel == 1 or channel == 2):
-            raise InvalidChannelNumber(channel)
-        elif not isinstance(burst_mode, BurstModeRigol):
+        self._validate_channel(channel)
+        if not isinstance(burst_mode, BurstModeRigol):
             raise TypeError(f"'burst_mode' must be enum of type BurstModeRigol. Hint: have you forgotten to import 'BurstModeRigol' from 'pyawg'?")
 
         try:
@@ -158,15 +152,14 @@ class RigolDG1000Z(AWG):
             InvalidChannelNumber: If the channel number is not 1 or 2.
             TypeError: If the period is not a float or int.
             ValueError: If the period is negative.
+            Exception: If there is an error in writing the command to the device.
 
         Returns:
             None
         
         """
-
-        if type(channel) is not int or not (channel == 1 or channel == 2):
-            raise InvalidChannelNumber(channel)
-        elif type(period) is not float and type(period) is not int:
+        self._validate_channel(channel)
+        if not isinstance(period, (float, int)):
             raise TypeError(f"'period' must be float or int; received {type(period)}")
         elif period < 0:
             raise ValueError(f"'period' cannot be negative")
@@ -188,15 +181,14 @@ class RigolDG1000Z(AWG):
         Raises:
             InvalidChannelNumber: If the channel number is not 1 or 2.
             TypeError: If the state is not a boolean.
+            Exception: If there is an error in writing the command to the device.
 
         Returns:
             None
         
         """
-
-        if type(channel) is not int or not (channel == 1 or channel == 2):
-            raise InvalidChannelNumber(channel)
-        elif type(state) is not bool:
+        self._validate_channel(channel)
+        if type(state) is not bool:
             raise TypeError(f"'state' must be bool; received {type(state)}")
 
         state_str = "ON" if state else "OFF"
@@ -218,15 +210,14 @@ class RigolDG1000Z(AWG):
         Raises:
             InvalidChannelNumber: If the channel number is not 1 or 2.
             TypeError: If the trigger_source is not an instance of the BurstTriggerSource enum.
+            Exception: If there is an error in writing the command to the device.
 
         Returns:
             None
         
         """
-
-        if type(channel) is not int or not (channel == 1 or channel == 2):
-            raise InvalidChannelNumber(channel)
-        elif not isinstance(trigger_source, BurstTriggerSource):
+        self._validate_channel(channel)
+        if not isinstance(trigger_source, BurstTriggerSource):
             raise TypeError(f"'trigger_source' must be enum of type BurstTriggerSource. Hint: have you forgotten to import 'BurstTriggerSource' from 'pyawg'?")
 
         try:
@@ -254,10 +245,8 @@ class RigolDG1000Z(AWG):
             None
         
         """
-
-        if type(channel) is not int or not (channel == 1 or channel == 2):
-            raise InvalidChannelNumber(channel)
-        elif type(duty_cycle) is not float and type(duty_cycle) is not int:
+        self._validate_channel(channel)
+        if not isinstance(duty_cycle, (float, int)):
             raise TypeError(f"'duty_cycle' must be float or int; received {type(duty_cycle)}")
         elif not (0 <= duty_cycle <= 100):
             raise ValueError(f"'duty_cycle' must be between 0 and 100")
@@ -288,14 +277,9 @@ class RigolDG1000Z(AWG):
             None
         
         """
-
-        if type(channel) is not int or not (channel == 1 or channel == 2):
-            raise InvalidChannelNumber(channel)
-        elif type(frequency) is not float and type(frequency) is not int:
-            raise TypeError(f"'frequency' must be float or int; received {type(frequency)}")
-        elif frequency < 0:
-            raise ValueError(f"'frequency' cannot be negative")
-        elif not isinstance(unit, FrequencyUnit):
+        self._validate_channel(channel)
+        self._validate_frequency(frequency)
+        if not isinstance(unit, FrequencyUnit):
             raise TypeError(f"'unit' must be enum of type FrequencyUnit. Hint: did you forget to import 'FrequencyUnit' from 'pyawg'?")
 
         try:
@@ -323,12 +307,10 @@ class RigolDG1000Z(AWG):
             None
 
         """
-
-        if type(channel) is not int or not (channel == 1 or channel == 2):
-            raise InvalidChannelNumber(channel)
-        elif type(offset_voltage) is not float and type(offset_voltage) is not int:
+        self._validate_channel(channel)
+        if not isinstance(offset_voltage, (float, int)):
             raise TypeError(f"'offset_voltage' must be float or int; received {type(offset_voltage)}")
-
+        
         try:
             self.write(f"SOUR{channel}:VOLT:OFFS {offset_voltage}")
             logging.debug(f"Channel {channel} offset voltage set to {offset_voltage} Vdc")
@@ -352,10 +334,8 @@ class RigolDG1000Z(AWG):
             None
         
         """
-
-        if type(channel) is not int or not (channel == 1 or channel == 2):
-            raise InvalidChannelNumber(channel)
-        elif type(state) is not bool:
+        self._validate_channel(channel)
+        if type(state) is not bool:
             raise TypeError(f"'state' must be bool; received {type(state)}")
 
 
@@ -383,11 +363,9 @@ class RigolDG1000Z(AWG):
             None
 
         """
-
-        if type(channel) is not int or not (channel == 1 or channel == 2):
-            raise InvalidChannelNumber(channel)
-        elif type(load) is not float and type(load) is not int and not isinstance(load, OutputLoad):
-            raise TypeError(f"'load' must be float or int or enum of type OutputLoad; received {type(load)}. Hint: did you forget to import 'OutputLoad' from 'pyawg'?")
+        self._validate_channel(channel)
+        if not isinstance(load, (float, int, OutputLoad)):
+            raise TypeError(f"'load' must be float or int or enum of type OutputLoad. Hint: have you forgotten to import 'OutputLoad' from 'pyawg'?")
 
         if load == OutputLoad.HZ or load == OutputLoad.INF:
             load = 'INF'
@@ -416,12 +394,10 @@ class RigolDG1000Z(AWG):
             None
 
         """
-
-        if type(channel) is not int or not (channel == 1 or channel == 2):
-            raise InvalidChannelNumber(channel)
-        elif type(phase) is not float and type(phase) is not int:
+        self._validate_channel(channel)
+        if not isinstance(phase, (float, int)):
             raise TypeError(f"'phase' must be float or int; received {type(phase)}")
-        elif not (0 <= abs(phase) <= 360):
+        elif not (0 <= phase <= 360):
             raise ValueError(f"'phase' must be between 0 and 360")
 
         try:
@@ -450,10 +426,8 @@ class RigolDG1000Z(AWG):
             None
         
         """
-
-        if type(channel) is not int or not (channel == 1 or channel == 2):
-            raise InvalidChannelNumber(channel)
-        elif type(pulse_width) is not float and type(pulse_width) is not int:
+        self._validate_channel(channel)
+        if not isinstance(pulse_width, (float, int)):
             raise TypeError(f"'pulse_width' must be float or int; received {type(pulse_width)}")
         elif pulse_width < 0:
             raise ValueError(f"'pulse_width' cannot be negative; received {pulse_width}")
@@ -482,10 +456,8 @@ class RigolDG1000Z(AWG):
             None
 
         """
-
-        if type(channel) is not int or not (channel == 1 or channel == 2):
-            raise InvalidChannelNumber(channel)
-        elif not isinstance(waveform_type, WaveformType):
+        self._validate_channel(channel)
+        if not isinstance(waveform_type, WaveformType):
             raise TypeError(f"'waveform_type' must be enum of type WaveformType. Hint: have you forgotten to import 'WaveformType' from 'pyawg'?")
 
         try:
@@ -513,9 +485,7 @@ class RigolDG1000Z(AWG):
             None
 
         """
-
-        if type(channel) is not int or not (channel == 1 or channel == 2):
-            raise InvalidChannelNumber(channel)
+        self._validate_channel(channel)
 
         try:
             self.write(f"SOUR{channel}:PHAS:SYNC")
@@ -539,10 +509,8 @@ class RigolDG1000Z(AWG):
             None
 
         """
-
-        if type(channel) is not int or not (channel == 1 or channel == 2):
-            raise InvalidChannelNumber(channel)
-
+        self._validate_channel(channel)
+        
         try:
             self.write(f"SOUR{channel}:BURS:TRIG")
             logging.debug(f"Burst on channel {channel} has been successfully triggered")
