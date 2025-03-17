@@ -1,4 +1,4 @@
-# PyAWB
+# PyAWG
 
 A simple (unofficial) python library to control some functions of Arbitrary Waveform Generators (aka Function / Signal Generators) from various manufacturers.
 
