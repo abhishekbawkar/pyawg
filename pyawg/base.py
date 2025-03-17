@@ -7,6 +7,7 @@ import vxi11
 from abc import ABC, abstractmethod
 
 from .enums import AmplitudeUnit, BurstModeRigol, BurstModeSiglent, BurstTriggerSource, FrequencyUnit, OutputLoad, WaveformType
+from .exceptions import *
 
 
 class AWG(ABC):
@@ -48,6 +49,11 @@ class AWG(ABC):
     model: str
     serial_number: str
     fw_version: str
+    MAX_CHANNELS: int
+    MAX_FREQUENCY: float | int
+    MIN_FREQUENCY: float | int
+    MAX_AMPLITUDE: float | int
+    MIN_AMPLITUDE: float | int
 
     def __init__(self: AWG, ip_addr: str):
         """
@@ -103,7 +109,52 @@ class AWG(ABC):
             ),
             indent=2
         )
-        
+
+    def _validate_amplitude(self: AWG, amplitude: float | int) -> None:
+        """
+        Validates the amplitude value to ensure it is within the supported range.
+
+        Args:
+            amplitude (float or int): The amplitude value to be validated.
+
+        Raises:
+            TypeError: If the amplitude value is not of valid datatype (float or int).
+            ValueError: If the amplitude value is not within the supported range.
+        """
+        if (type(amplitude) is not int) and (type(amplitude) is not float):
+            raise TypeError(f"'amplitude' must be float or int; received {type(amplitude)}")
+        if not self.MIN_AMPLITUDE <= amplitude <= self.MAX_AMPLITUDE:
+            raise ValueError(f"'amplitude' must be between -/+ 10")
+
+    def _validate_channel(self: AWG, channel: int) -> None:
+        """
+        Validates the channel number to ensure it is within the supported range.
+
+        Args:
+            channel (int): The channel number to be validated.
+
+        Raises:
+            InvalidChannelNumber: If the channel number is not valid or not within the supported range.
+        """
+        if (type(channel) is not int) or (not 1 <= channel <= self.MAX_CHANNELS):
+            raise InvalidChannelNumber(channel)
+
+    def _validate_frequency(self: AWG, frequency: float | int) -> None:
+        """
+        Validates the frequency value to ensure it is within the supported range.
+
+        Args:
+            frequency (float or int): The frequency value to be validated.
+
+        Raises:
+            TypeError: If the frequency value is not of valid datatype (float or int).
+            ValueError: If the frequency value is not within the supported range.
+        """
+        if (type(frequency) is not int) and (type(frequency) is not float):
+            raise TypeError(f"'frequency' must be float or int; received {type(frequency)}")
+        if not self.MIN_FREQUENCY <= frequency <= self.MAX_FREQUENCY:
+            raise ValueError(f"'frequency' must be between {self.MIN_FREQUENCY} and {self.MAX_FREQUENCY}")
+
     def close(self: AWG) -> None:
         """
         Closes the connection to the AWG device.
