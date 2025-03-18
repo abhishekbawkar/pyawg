@@ -44,10 +44,10 @@ class RigolDG1000Z(AWG):
         logging.debug("RigolDG1000Z instance created.")
 
         self.MAX_CHANNELS = int(self.query(":SYST:CHAN:NUM?"))
-        self.MAX_FREQUENCY = float(self.query(":SOUR:FREQ:MAX?"))
-        self.MIN_FREQUENCY = float(self.query(":SOUR:FREQ:MIN?"))
-        self.MAX_AMPLITUDE = float(self.query(":SOUR:VOLT:AMPL:MAX?"))
-        self.MIN_AMPLITUDE = float(self.query(":SOUR:VOLT:AMPL:MIN?"))
+        self.MAX_FREQUENCY = float(self.query(":SOUR:FREQ? MAX"))
+        self.MIN_FREQUENCY = float(self.query(":SOUR:FREQ? MIN"))
+        self.MAX_AMPLITUDE = float(self.query(":SOUR:VOLT:AMPL? MAX"))
+        self.MIN_AMPLITUDE = float(self.query(":SOUR:VOLT:AMPL? MIN"))
 
     def set_amplitude(self: RigolDG1000Z, channel: int, amplitude: float | int, unit: AmplitudeUnit = AmplitudeUnit.VPP) -> None:
         """
