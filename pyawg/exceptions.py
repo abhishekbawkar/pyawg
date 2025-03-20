@@ -1,4 +1,7 @@
+# -*- coding: utf-8 -*-
+
 from __future__ import annotations
+
 
 class PyAWGException(Exception):
     """
@@ -6,6 +9,7 @@ class PyAWGException(Exception):
 
     This exception can be used to catch all errors specific to PyAWG.
     """
+
     pass
 
 
@@ -19,6 +23,7 @@ class InvalidChannelNumber(PyAWGException):
     Methods:
         __init__(self, channel) -- initializes the exception with the given channel number
     """
+
     def __init__(self: InvalidChannelNumber, channel) -> None:
         """
         Initializes the InvalidChannelNumber exception with a custom error message.
@@ -29,4 +34,6 @@ class InvalidChannelNumber(PyAWGException):
         Returns:
             None
         """
-        super().__init__(f"Invalid Channel Number: {channel}; please check the datatype and/or its value")
+        super().__init__(
+            f"Invalid Channel Number: {channel}; please check the datatype and/or its value"
+        )

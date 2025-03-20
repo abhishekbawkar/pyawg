@@ -1,10 +1,17 @@
-from .base import AWG
+# -*- coding: utf-8 -*-
+
+from __future__ import annotations
+
+# from .base import AWG
+
+
 from .rigol import RigolDG1000Z
 from .siglent import SiglentSDG1000X
 import logging
 import re
 
 import vxi11
+
 
 def awg_control(ip_address: str) -> RigolDG1000Z | SiglentSDG1000X:
     """
@@ -25,12 +32,14 @@ def awg_control(ip_address: str) -> RigolDG1000Z | SiglentSDG1000X:
     try:
         # Create a generic AWG instance to identify the device
         temp_awg = vxi11.Instrument(ip_address)
-        manufacturer, model, serial_number, fw_version = temp_awg.ask('*IDN?').strip().split(',')
+        manufacturer, model, serial_number, fw_version = (
+            temp_awg.ask("*IDN?").strip().split(",")
+        )
         temp_awg.close()  # Close the temporary connection
 
-        if re.match('^(DG10[3|6]2Z)$', model):
+        if re.match("^(DG10[36]2Z)$", model):
             return RigolDG1000Z(ip_address)
-        elif re.match('^(SDG10[3|6]2X)$', model):
+        elif re.match("^(SDG10[36]2X)$", model):
             return SiglentSDG1000X(ip_address)
         else:
             raise ValueError(f"Unsupported AWG device: {model}")

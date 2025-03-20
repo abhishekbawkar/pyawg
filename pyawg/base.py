@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from __future__ import annotations
 
 import json
@@ -6,7 +8,15 @@ import logging
 import vxi11
 from abc import ABC, abstractmethod
 
-from .enums import AmplitudeUnit, BurstModeRigol, BurstModeSiglent, BurstTriggerSource, FrequencyUnit, OutputLoad, WaveformType
+from .enums import (
+    AmplitudeUnit,
+    BurstModeRigol,
+    BurstModeSiglent,
+    BurstTriggerSource,
+    FrequencyUnit,
+    OutputLoad,
+    WaveformType,
+)
 from .exceptions import *
 
 
@@ -43,6 +53,7 @@ class AWG(ABC):
             Sends a command to the AWG device.
 
     """
+
     ip_addr: str
     device: vxi11.Instrument | None
     manufacturer: str
@@ -80,23 +91,25 @@ class AWG(ABC):
             self.device = vxi11.Instrument(ip_addr)
             self.device.clear()
             logging.debug(f"Connected to AWG at {ip_addr}")
-            
-            self.manufacturer, self.model, self.serial_number, self.fw_version = self.get_id().strip().split(',')
+
+            self.manufacturer, self.model, self.serial_number, self.fw_version = (
+                self.get_id().strip().split(",")
+            )
         except Exception as e:
             logging.error(f"Failed to connect to AWG at {ip_addr}: {e}")
             raise
-    
+
     def __str__(self: AWG) -> str:
         """
         Returns a JSON string representation of the object with the following attributes:
-        
+
         - manufacturer: The manufacturer of the device.
         - model: The model of the device.
         - serial_number: The serial number of the device.
         - fw_version: The firmware version of the device.
-        
+
         The JSON string is formatted with an indentation of 2 spaces.
-        
+
         Returns:
             str: A JSON string representation of the object.
         """
@@ -105,9 +118,9 @@ class AWG(ABC):
                 manufacturer=self.manufacturer,
                 model=self.model,
                 serial_number=self.serial_number,
-                fw_version=self.fw_version
+                fw_version=self.fw_version,
             ),
-            indent=2
+            indent=2,
         )
 
     def _validate_amplitude(self: AWG, amplitude: float | int) -> None:
@@ -122,7 +135,9 @@ class AWG(ABC):
             ValueError: If the amplitude value is not within the supported range.
         """
         if (type(amplitude) is not int) and (type(amplitude) is not float):
-            raise TypeError(f"'amplitude' must be float or int; received {type(amplitude)}")
+            raise TypeError(
+                f"'amplitude' must be float or int; received {type(amplitude)}"
+            )
         if not self.MIN_AMPLITUDE <= amplitude <= self.MAX_AMPLITUDE:
             raise ValueError(f"'amplitude' must be between -/+ 10")
 
@@ -151,9 +166,13 @@ class AWG(ABC):
             ValueError: If the frequency value is not within the supported range.
         """
         if (type(frequency) is not int) and (type(frequency) is not float):
-            raise TypeError(f"'frequency' must be float or int; received {type(frequency)}")
+            raise TypeError(
+                f"'frequency' must be float or int; received {type(frequency)}"
+            )
         if not self.MIN_FREQUENCY <= frequency <= self.MAX_FREQUENCY:
-            raise ValueError(f"'frequency' must be between {self.MIN_FREQUENCY} and {self.MAX_FREQUENCY}")
+            raise ValueError(
+                f"'frequency' must be between {self.MIN_FREQUENCY} and {self.MAX_FREQUENCY}"
+            )
 
     def close(self: AWG) -> None:
         """
@@ -210,13 +229,15 @@ class AWG(ABC):
             Exception: If there is an error in sending the query or receiving the response.
         """
         try:
-            response = self.device.write('*RST')
+            response = self.device.write("*RST")
         except Exception as e:
             logging.error(f"Failed to query command: {e}")
             raise
 
     @abstractmethod
-    def set_amplitude(self: AWG, channel, amplitude: float, unit: AmplitudeUnit = AmplitudeUnit.VPP) -> None:
+    def set_amplitude(
+        self: AWG, channel, amplitude: float, unit: AmplitudeUnit = AmplitudeUnit.VPP
+    ) -> None:
         """Sets the amplitude for the specified channel."""
         raise NotImplementedError
 
@@ -226,7 +247,9 @@ class AWG(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def set_burst_mode(self: AWG, channel: int, mode: BurstModeRigol | BurstModeSiglent) -> None:
+    def set_burst_mode(
+        self: AWG, channel: int, mode: BurstModeRigol | BurstModeSiglent
+    ) -> None:
         """Sets the burst mode for the specified channel."""
         raise NotImplementedError
 
@@ -241,7 +264,9 @@ class AWG(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def set_burst_trigger_source(self: AWG, channel: int, trigger_source: BurstTriggerSource) -> None:
+    def set_burst_trigger_source(
+        self: AWG, channel: int, trigger_source: BurstTriggerSource
+    ) -> None:
         """Sets the burst trigger source for the specified channel."""
         raise NotImplementedError
 
@@ -251,7 +276,12 @@ class AWG(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def set_frequency(self: AWG, channel: int, frequency: float, unit: FrequencyUnit = FrequencyUnit.HZ) -> None:
+    def set_frequency(
+        self: AWG,
+        channel: int,
+        frequency: float,
+        unit: FrequencyUnit = FrequencyUnit.HZ,
+    ) -> None:
         """Sets the frequency for the specified channel."""
         raise NotImplementedError
 
@@ -266,7 +296,9 @@ class AWG(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def set_output_load(self: AWG, channel: int, load: float | int | OutputLoad) -> None:
+    def set_output_load(
+        self: AWG, channel: int, load: float | int | OutputLoad
+    ) -> None:
         """Sets the output load for the specified channel."""
         raise NotImplementedError
 
