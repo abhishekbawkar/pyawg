@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from typing import Union
 
 from .base import AWG
 from .enums import (
@@ -25,17 +26,17 @@ class SiglentSDG1000X(AWG):
     Methods:
         __init__(self: SiglentSDG1000X, ip_address):
         get_channel_wave_parameter(self: SiglentSDG1000X, channel: int, parameter: str) -> str:
-        set_amplitude(self: SiglentSDG1000X, channel: int, amplitude: float | int, unit: AmplitudeUnit = AmplitudeUnit.VPP) -> None:
-        set_burst_delay(self: SiglentSDG1000X, channel: int, delay: float | int) -> None:
+        set_amplitude(self: SiglentSDG1000X, channel: int, amplitude: Union[float, int], unit: AmplitudeUnit = AmplitudeUnit.VPP) -> None:
+        set_burst_delay(self: SiglentSDG1000X, channel: int, delay: Union[float, int]) -> None:
         set_burst_mode(self: SiglentSDG1000X, channel: int, burst_mode: BurstModeRigol) -> None:
-        set_burst_period(self: SiglentSDG1000X, channel: int, period: float | int) -> None:
+        set_burst_period(self: SiglentSDG1000X, channel: int, period: Union[float, int]) -> None:
         set_burst_state(self: SiglentSDG1000X, channel: int, state: bool) -> None:
         set_burst_trigger_source(self: SiglentSDG1000X, channel: int, trigger_source: BurstTriggerSource) -> None:
-        set_frequency(self: SiglentSDG1000X, channel: int, frequency: float | int, unit: FrequencyUnit = FrequencyUnit.HZ) -> None:
-        set_offset(self: SiglentSDG1000X, channel: int, offset_voltage: float | int) -> None:
+        set_frequency(self: SiglentSDG1000X, channel: int, frequency: Union[float, int], unit: FrequencyUnit = FrequencyUnit.HZ) -> None:
+        set_offset(self: SiglentSDG1000X, channel: int, offset_voltage: Union[float, int]) -> None:
         set_output(self: SiglentSDG1000X, channel: int, state: bool) -> None:
-        set_output_load(self: SiglentSDG1000X, channel: int, load: OutputLoad | int | float) -> None:
-        set_phase(self: SiglentSDG1000X, channel: int, phase: float | int) -> None:
+        set_output_load(self: SiglentSDG1000X, channel: int, load: Union[float, int, OutputLoad]) -> None:
+        set_phase(self: SiglentSDG1000X, channel: int, phase: Union[float, int]) -> None:
         set_waveform(self: SiglentSDG1000X, channel: int, waveform_type: WaveformType) -> None:
         sync_phase(self: SiglentSDG1000X, channel: int = 1) -> None:
         trigger_burst(self: SiglentSDG1000X, channel: int) -> None:
@@ -108,7 +109,7 @@ class SiglentSDG1000X(AWG):
     def set_amplitude(
         self: SiglentSDG1000X,
         channel: int,
-        amplitude: float | int,
+        amplitude: Union[float, int],
         unit: AmplitudeUnit = AmplitudeUnit.VPP,
     ) -> None:
         """
@@ -117,7 +118,7 @@ class SiglentSDG1000X(AWG):
         Args:
             self (SiglentSDG1000X): The instance of the SiglentSDG1000X class.
             channel (int): The channel number (must be 1 or 2).
-            amplitude (float | int): The amplitude value to set (must be between -10 and 10).
+            amplitude (Union[float, int]): The amplitude value to set (must be between -10 and 10).
             unit (AmplitudeUnit, optional): The unit of the amplitude (default is AmplitudeUnit.VPP).
 
         Raises:
@@ -147,7 +148,7 @@ class SiglentSDG1000X(AWG):
             raise
 
     def set_burst_delay(
-        self: SiglentSDG1000X, channel: int, delay: float | int
+        self: SiglentSDG1000X, channel: int, delay: Union[float, int]
     ) -> None:
         """
         Sets the burst delay for the specified channel on the Siglent SDG1000X.
@@ -155,7 +156,7 @@ class SiglentSDG1000X(AWG):
         Args:
             self (SiglentSDG1000X): The instance of the SiglentSDG1000X class.
             channel (int): The channel number (must be 1 or 2).
-            delay (float | int): The delay time in seconds (must be non-negative).
+            delay (Union[float, int]): The delay time in seconds (must be non-negative).
 
         Raises:
             InvalidChannelNumber: If the channel number is not 1 or 2.
@@ -217,7 +218,7 @@ class SiglentSDG1000X(AWG):
             )
 
     def set_burst_period(
-        self: SiglentSDG1000X, channel: int, period: float | int
+        self: SiglentSDG1000X, channel: int, period: Union[float, int]
     ) -> None:
         """
         Sets the burst period for the specified channel on the Siglent SDG1000X.
@@ -225,7 +226,7 @@ class SiglentSDG1000X(AWG):
         Args:
             self (SiglentSDG1000X): The instance of the SiglentSDG1000X class.
             channel (int): The channel number (must be 1 or 2).
-            period (float | int): The burst period to set. Must be a non-negative float or int.
+            period (Union[float, int]): The burst period to set. Must be a non-negative float or int.
 
         Raises:
             InvalidChannelNumber: If the channel number is not 1 or 2.
@@ -318,7 +319,7 @@ class SiglentSDG1000X(AWG):
             )
 
     def set_duty_cycle(
-        self: SiglentSDG1000X, channel: int, duty_cycle: float | int
+        self: SiglentSDG1000X, channel: int, duty_cycle: Union[float, int]
     ) -> None:
         """
         Sets the duty cycle for the specified channel on the Siglent SDG1000X.
@@ -326,7 +327,7 @@ class SiglentSDG1000X(AWG):
         Args:
             self (SiglentSDG1000X): The instance of the SiglentSDG1000X class.
             channel (int): The channel number (must be 1 or 2).
-            duty_cycle (float | int): The duty cycle, which must be either float or int and should be between 0 and 100.
+            duty_cycle (Union[float, int]): The duty cycle, which must be either float or int and should be between 0 and 100.
 
         Raises:
             InvalidChannelNumber: If the channel number is not 1 or 2.
@@ -357,7 +358,7 @@ class SiglentSDG1000X(AWG):
     def set_frequency(
         self: SiglentSDG1000X,
         channel: int,
-        frequency: float | int,
+        frequency: Union[float, int],
         unit: FrequencyUnit = FrequencyUnit.HZ,
     ) -> None:
         """
@@ -366,7 +367,7 @@ class SiglentSDG1000X(AWG):
         Args:
             self (SiglentSDG1000X): The instance of the SiglentSDG1000X class.
             channel (int): The channel number (must be 1 or 2).
-            frequency (float | int): The frequency value to set (must be non-negative).
+            frequency (Union[float, int]): The frequency value to set (must be non-negative).
             unit (FrequencyUnit, optional): The unit of the frequency (default is FrequencyUnit.HZ).
 
         Raises:
@@ -404,7 +405,7 @@ class SiglentSDG1000X(AWG):
             raise
 
     def set_offset(
-        self: SiglentSDG1000X, channel: int, offset_voltage: float | int
+        self: SiglentSDG1000X, channel: int, offset_voltage: Union[float, int]
     ) -> None:
         """
         Sets the offset voltage for the specified channel on the Siglent SDG1000X.
@@ -412,7 +413,7 @@ class SiglentSDG1000X(AWG):
         Args:
             self (SiglentSDG1000X): The instance of the SiglentSDG1000X class.
             channel (int): The channel number to set the offset voltage for. Must be 1 or 2.
-            offset_voltage (float | int): The offset voltage to set. Must be a float or int.
+            offset_voltage (Union[float, int]): The offset voltage to set. Must be a float or int.
 
         Raises:
             InvalidChannelNumber: If the channel number is not 1 or 2.
@@ -469,7 +470,7 @@ class SiglentSDG1000X(AWG):
             logging.error(f"Failed to set channel {channel} output to {state_str}: {e}")
 
     def set_output_load(
-        self: SiglentSDG1000X, channel: int, load: float | int | OutputLoad
+        self: SiglentSDG1000X, channel: int, load: Union[float, int, OutputLoad]
     ) -> None:
         """
         Set the output load for the specified channel on the Siglent SDG1000X.
@@ -502,14 +503,14 @@ class SiglentSDG1000X(AWG):
         except Exception as e:
             logging.error(f"Failed to set channel {channel} output load to {load}: {e}")
 
-    def set_phase(self: SiglentSDG1000X, channel: int, phase: float | int) -> None:
+    def set_phase(self: SiglentSDG1000X, channel: int, phase: Union[float, int]) -> None:
         """
         Set the phase of the specified channel on the Siglent SDG1000X.
 
         Args:
             self (SiglentSDG1000X): The instance of the SiglentSDG1000X class.
             channel (int): The channel number (must be 1 or 2).
-            phase (float | int): The phase value to set, in degrees (must be between 0 and 360).
+            phase (Union[float, int]): The phase value to set, in degrees (must be between 0 and 360).
 
         Raises:
             InvalidChannelNumber: If the channel number is not 1 or 2.
@@ -535,7 +536,7 @@ class SiglentSDG1000X(AWG):
             raise
 
     def set_pulse_width(
-        self: SiglentSDG1000X, channel: int, pulse_width: float | int
+        self: SiglentSDG1000X, channel: int, pulse_width: Union[float, int]
     ) -> None:
         """
         Sets the pulse width for the specified channel on the Siglent SDG1000X.
@@ -543,7 +544,7 @@ class SiglentSDG1000X(AWG):
         Args:
             self (SiglentSDG1000X): The instance of the SiglentSDG1000X class.
             channel (int): The channel number (must be 1 or 2).
-            pulse_width (float | int): The pulse width, which must be either float or int.
+            pulse_width (Union[float, int]): The pulse width, which must be either float or int.
 
         Raises:
             InvalidChannelNumber: If the channel number is not 1 or 2.
