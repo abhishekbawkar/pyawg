@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from enum import Enum
 
 
@@ -10,6 +12,7 @@ class AmplitudeUnit(Enum):
         VRMS (str): Root mean square voltage.
         DBM (str): Decibel-milliwatts.
     """
+
     VPP = "VPP"
     VRMS = "VRMS"
     DBM = "DBM"
@@ -24,6 +27,7 @@ class BurstModeRigol(Enum):
         INFINITY (str): Burst mode is infinite.
         GATED (str): Burst mode is gated.
     """
+
     TRIGGERED = "TRIG"
     INFINITY = "INF"
     GATED = "GAT"
@@ -37,6 +41,7 @@ class BurstModeSiglent(Enum):
         NCYC (str): Burst mode where a specific number of cycles are generated.
         GATE (str): Burst mode where the output is controlled by a gate signal.
     """
+
     NCYC = "NCYC"
     GATE = "GATE"
 
@@ -50,6 +55,7 @@ class BurstTriggerSource(Enum):
         EXTERNAL (str): Represents an external trigger source, denoted by "EXT".
         MANUAL (str): Represents a manual trigger source, denoted by "MAN".
     """
+
     INTERNAL = "INT"
     EXTERNAL = "EXT"
     MANUAL = "MAN"
@@ -64,6 +70,7 @@ class FrequencyUnit(Enum):
         KHZ (str): Kilohertz unit.
         MHZ (str): Megahertz unit.
     """
+
     HZ = "HZ"
     KHZ = "KHZ"
     MHZ = "MHZ"
@@ -77,8 +84,10 @@ class OutputLoad(Enum):
         HZ: Represents a high impedance load.
         INF: Represents an infinite load.
     """
+
     HZ = "HZ"
     INF = "INF"
+
 
 class Polarity(Enum):
     """
@@ -88,6 +97,7 @@ class Polarity(Enum):
         NORMAL (str): Represents normal polarity with the value "NORM".
         INVERTED (str): Represents inverted polarity with the value "INVT".
     """
+
     NORMAL = "NORM"
     INVERTED = "INVT"
 
@@ -105,6 +115,7 @@ class WaveformType(Enum):
         DC (str): Direct Current (DC) waveform.
         ARB (str): Arbitrary waveform.
     """
+
     SINE = "SIN"
     SQUARE = "SQU"
     RAMP = "RAMP"

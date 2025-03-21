@@ -1,4 +1,6 @@
-from .base import AWG
+# -*- coding: utf-8 -*-
+
+# from .base import AWG
 from .rigol import RigolDG1000Z
 from .siglent import SiglentSDG1000X
 from .enums import *
