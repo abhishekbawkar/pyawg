@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
+from typing import Union
 
 import vxi11
 from abc import ABC, abstractmethod
@@ -61,10 +62,10 @@ class AWG(ABC):
     serial_number: str
     fw_version: str
     MAX_CHANNELS: int
-    MAX_FREQUENCY: float | int
-    MIN_FREQUENCY: float | int
-    MAX_AMPLITUDE: float | int
-    MIN_AMPLITUDE: float | int
+    MAX_FREQUENCY: Union[float, int]
+    MIN_FREQUENCY: Union[float, int]
+    MAX_AMPLITUDE: Union[float, int]
+    MIN_AMPLITUDE: Union[float, int]
 
     def __init__(self: AWG, ip_addr: str):
         """
@@ -123,7 +124,7 @@ class AWG(ABC):
             indent=2,
         )
 
-    def _validate_amplitude(self: AWG, amplitude: float | int) -> None:
+    def _validate_amplitude(self: AWG, amplitude: Union[float, int]) -> None:
         """
         Validates the amplitude value to ensure it is within the supported range.
 
@@ -154,7 +155,7 @@ class AWG(ABC):
         if (type(channel) is not int) or (not 1 <= channel <= self.MAX_CHANNELS):
             raise InvalidChannelNumber(channel)
 
-    def _validate_frequency(self: AWG, frequency: float | int) -> None:
+    def _validate_frequency(self: AWG, frequency: Union[float, int]) -> None:
         """
         Validates the frequency value to ensure it is within the supported range.
 
@@ -242,7 +243,7 @@ class AWG(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def set_burst_delay(self: AWG, channel: int, delay: float | int) -> None:
+    def set_burst_delay(self: AWG, channel: int, delay: Union[float, int]) -> None:
         """Sets the burst dealy for the specified channel."""
         raise NotImplementedError
 
@@ -254,7 +255,7 @@ class AWG(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def set_burst_period(self: AWG, channel: int, period: float | int) -> None:
+    def set_burst_period(self: AWG, channel: int, period: Union[float, int]) -> None:
         """Sets the burst period for the specified channel."""
         raise NotImplementedError
 
@@ -271,7 +272,7 @@ class AWG(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def set_duty_cycle(self: AWG, channel: int, duty_cycle: float | int) -> None:
+    def set_duty_cycle(self: AWG, channel: int, duty_cycle: Union[float, int]) -> None:
         """Sets the duty cycle for the specified channel."""
         raise NotImplementedError
 
@@ -286,7 +287,7 @@ class AWG(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def set_offset(self: AWG, channel: int, offset_voltage: float | int) -> None:
+    def set_offset(self: AWG, channel: int, offset_voltage: Union[float, int]) -> None:
         """Sets the offset voltage for the specified channel."""
         raise NotImplementedError
 
@@ -297,18 +298,20 @@ class AWG(ABC):
 
     @abstractmethod
     def set_output_load(
-        self: AWG, channel: int, load: float | int | OutputLoad
+        self: AWG, channel: int, load: Union[float, int, OutputLoad]
     ) -> None:
         """Sets the output load for the specified channel."""
         raise NotImplementedError
 
     @abstractmethod
-    def set_phase(self: AWG, channel: int, phase: float | int) -> None:
+    def set_phase(self: AWG, channel: int, phase: Union[float, int]) -> None:
         """Sets the phase for the specified channel."""
         raise NotImplementedError
 
     @abstractmethod
-    def set_pulse_width(self: AWG, channel: int, pulse_width: float | int) -> None:
+    def set_pulse_width(
+        self: AWG, channel: int, pulse_width: Union[float, int]
+    ) -> None:
         """Sets the pulse width for the specified channel."""
         raise NotImplementedError
 

@@ -63,4 +63,7 @@ Here is an exmaple with Rigol DG1032Z Arbitrary Waveform Generator. For the vari
 >>> awg.set_output(1, True)
 [2025.03.06 21:25:34][DEBUG] Sent command: OUTP1 ON
 [2025.03.06 21:25:34][DEBUG] Channel 1 output has been set to ON
+
+>>> awg.close()
+[2025.03.06 21:35:13][DEBUG] Disconnected from AWG
 ```

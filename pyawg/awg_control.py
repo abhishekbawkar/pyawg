@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 # from .base import AWG
+from typing import Union
 
 
 from .rigol import RigolDG1000Z
@@ -13,7 +14,7 @@ import re
 import vxi11
 
 
-def awg_control(ip_address: str) -> RigolDG1000Z | SiglentSDG1000X:
+def awg_control(ip_address: str) -> Union [RigolDG1000Z, SiglentSDG1000X]:
     """
     Factory function to create AWG instances based on device identification.
         Args:
