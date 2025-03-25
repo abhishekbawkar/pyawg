@@ -117,9 +117,9 @@ class WaveformType(Enum):
     """
 
     SINE = "SIN"
-    SQUARE = "SQU"
+    SQUARE = "SQUARE"
     RAMP = "RAMP"
-    PULSE = "PULS"
-    NOISE = "NOIS"
+    PULSE = "PULSE"
+    NOISE = "NOISE"
     DC = "DC"
-    ARB = "ARB"  # Arbitrary
+    # ARB = "ARB"  # Arbitrary
