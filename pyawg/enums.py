@@ -113,10 +113,10 @@ class WaveformType(Enum):
         PULSE (str): Pulse waveform.
         NOISE (str): Noise waveform.
         DC (str): Direct Current (DC) waveform.
-        ARB (str): Arbitrary waveform.
+        # ARB (str): Arbitrary waveform. (Currently not supported using enum, but could be directly set using awg.write() method)
     """
 
-    SINE = "SIN"
+    SINE = "SINE"
     SQUARE = "SQUARE"
     RAMP = "RAMP"
     PULSE = "PULSE"
