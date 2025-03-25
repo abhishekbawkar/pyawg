@@ -7,7 +7,9 @@ Currently following function generators are supported. Volunteers are welcome to
 ## Siglent
 - [Siglent SDG1000X Series Arbitrary Waveform Generator](https://www.siglenteu.com/download/8715/?tmstv=1740404771) 
   - SDG1032X
+  - SDG1032X Plus
   - SDG1062X
+  - SDG1062X Plus
 
 ## Rigol
 - [Rigol DG1000Z Series Arbitrary Waveform Generator](https://www.batronix.com/pdf/Rigol/ProgrammingGuide/DG1000Z_ProgrammingGuide_EN.pdf)
