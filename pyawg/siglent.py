@@ -82,7 +82,7 @@ class SiglentSDG1000X(AWG):
         """
 
         try:
-            response = self.query(f"C{channel}BSWV?").split(" ")[1]
+            response = self.query(f"C{channel}:BSWV?").split(" ")[1]
             params = dict(
                 zip(
                     response.strip("'").split(",")[::2],
