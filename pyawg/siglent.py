@@ -76,9 +76,6 @@ class SiglentSDG1000X(AWG):
         Raises:
             Exception: If there is an error in querying the waveform parameters or retrieving the value.
 
-        Returns:
-            None
-
         """
 
         try:
