@@ -40,7 +40,7 @@ def awg_control(ip_address: str) -> Union [RigolDG1000Z, SiglentSDG1000X]:
 
         if re.match("^(DG10[36]2Z)$", model):
             return RigolDG1000Z(ip_address)
-        elif re.match("^(SDG10[36]2X)$", model):
+        elif re.match("^(SDG10[36]2X( Plus)?)$", model):
             return SiglentSDG1000X(ip_address)
         else:
             raise ValueError(f"Unsupported AWG device: {model}")
