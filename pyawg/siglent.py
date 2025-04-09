@@ -12,6 +12,7 @@ from .enums import (
     BurstTriggerSource,
     FrequencyUnit,
     OutputLoad,
+    PulseWidthUnit,
     WaveformType,
 )
 
@@ -533,7 +534,7 @@ class SiglentSDG1000X(AWG):
             raise
 
     def set_pulse_width(
-        self: SiglentSDG1000X, channel: int, pulse_width: Union[float, int]
+        self: SiglentSDG1000X, channel: int, pulse_width: Union[float, int], unit: PulseWidthUnit = PulseWidthUnit.S
     ) -> None:
         """
         Sets the pulse width for the specified channel on the Siglent SDG1000X.
@@ -542,6 +543,7 @@ class SiglentSDG1000X(AWG):
             self (SiglentSDG1000X): The instance of the SiglentSDG1000X class.
             channel (int): The channel number (must be 1 or 2).
             pulse_width (Union[float, int]): The pulse width, which must be either float or int.
+            unit (PulseWidthUnit): The unit of the pulse width (default is PulseWidthUnit.S).
 
         Raises:
             InvalidChannelNumber: If the channel number is not 1 or 2.
@@ -562,6 +564,16 @@ class SiglentSDG1000X(AWG):
             raise ValueError(
                 f"'pulse_width' cannot be negative; received {pulse_width}"
             )
+
+        if not isinstance(unit, PulseWidthUnit):
+            raise TypeError(
+                f"'unit' must be enum of type PulseWidthUnit. Hint: have you forgotten to import 'PulseWidthUnit' from 'pyawg'?"
+            )
+
+        if unit == PulseWidthUnit.mS:
+            pulse_width *= 1e-3
+        elif unit == PulseWidthUnit.uS:
+            pulse_width *= 1e-6
 
         try:
             self.write(f"C{channel}:BSWV WIDTH,{pulse_width}")

@@ -102,6 +102,21 @@ class Polarity(Enum):
     INVERTED = "INVT"
 
 
+class PulseWidthUnit(Enum):
+    """
+    Enum class representing pulse width units.
+
+    Attributes:
+        S (str): Seconds.
+        MS (str): Milliseconds.
+        US (str): Microseconds.
+    """
+
+    S = "S"
+    mS = "MS"
+    uS = "US"
+
+
 class WaveformType(Enum):
     """
     Enum class representing different types of waveforms.

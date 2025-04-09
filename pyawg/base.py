@@ -16,6 +16,7 @@ from .enums import (
     BurstTriggerSource,
     FrequencyUnit,
     OutputLoad,
+    PulseWidthUnit,
     WaveformType,
 )
 from .exceptions import *
@@ -310,7 +311,7 @@ class AWG(ABC):
 
     @abstractmethod
     def set_pulse_width(
-        self: AWG, channel: int, pulse_width: Union[float, int]
+        self: AWG, channel: int, pulse_width: Union[float, int], unit: PulseWidthUnit
     ) -> None:
         """Sets the pulse width for the specified channel."""
         raise NotImplementedError

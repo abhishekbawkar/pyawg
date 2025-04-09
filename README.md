@@ -46,6 +46,7 @@ requests.
 | Set Amplitude            | `set_amplitude()`            | Yes         | Yes    | Set the amplitude of the waveform in Vpp.                                                                                            |
 | Set Offset               | `set_offset()`               | Yes         | Yes    | Set the offset voltage in Vdc.                                                                                                       |
 | Set Duty Cycle           | `set_duty_cycle()`           | Yes         | Yes    | Set the duty cycle of the waveform in percentage.                                                                                    |
+| Set Pulse Width          | `set_pulse_width()`          | Yes         |        | Set the pulse width of the waveform in seconds.                                                                                      |
 | Set Phase                | `set_phase()`                | Yes         | Yes    | Set the phase shift in degrees.                                                                                                      |
 | Synchronize Phase        | `sync_phase()`               | Yes         | Yes    | Synchronize the phase of the channels.                                                                                               |
 | Enable Burst Mode        | `enable_burst_mode()`        | Yes         |        | Enable or disable burst mode.                                                                                                        |

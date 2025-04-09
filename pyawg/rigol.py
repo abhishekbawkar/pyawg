@@ -12,6 +12,7 @@ from .enums import (
     BurstTriggerSource,
     FrequencyUnit,
     OutputLoad,
+    PulseWidthUnit,
     WaveformType,
 )
 
@@ -297,7 +298,7 @@ class RigolDG1000Z(AWG):
             raise ValueError(f"'duty_cycle' must be between 0 and 100")
 
         try:
-            self.write(f"SOUR{channel}:PULS:DCYC {duty_cycle}")
+            self.write(f"SOUR{channel}:FUNC:SQU:DCYC {duty_cycle}")
             logging.debug(f"Channel {channel} duty cycle has been set to {duty_cycle}")
         except Exception as e:
             logging.error(
@@ -477,7 +478,7 @@ class RigolDG1000Z(AWG):
             raise
 
     def set_pulse_width(
-        self: RigolDG1000Z, channel: int, pulse_width: Union[float, int]
+        self: RigolDG1000Z, channel: int, pulse_width: Union[float, int], unit: PulseWidthUnit = PulseWidthUnit.S
     ) -> None:
         """
         Sets the pulse width for the specified channel on the Rigol DG1000Z.
@@ -486,6 +487,7 @@ class RigolDG1000Z(AWG):
             self (RigolDG1000Z): The instance of the RigolDG1000Z class.
             channel (int): The channel number (must be 1 or 2).
             pulse_width (Union[float, int]): The pulse width, which must be either float or int.
+            unit (PulseWidthUnit): The unit of the pulse width (default is PulseWidthUnit.S).
 
         Raises:
             InvalidChannelNumber: If the channel number is not 1 or 2.
@@ -506,6 +508,16 @@ class RigolDG1000Z(AWG):
             raise ValueError(
                 f"'pulse_width' cannot be negative; received {pulse_width}"
             )
+
+        if not isinstance(unit, PulseWidthUnit):
+            raise TypeError(
+                f"'unit' must be enum of type PulseWidthUnit. Hint: have you forgotten to import 'PulseWidthUnit' from 'pyawg'?"
+            )
+
+        if unit == PulseWidthUnit.mS:
+            pulse_width *= 1e-3
+        elif unit == PulseWidthUnit.uS:
+            pulse_width *= 1e-6
 
         try:
             self.write(f"SOUR{channel}:PULS:WIDT {pulse_width}")
