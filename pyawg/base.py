@@ -16,6 +16,7 @@ from .enums import (
     BurstTriggerSource,
     FrequencyUnit,
     OutputLoad,
+    PulseWidthUnit,
     WaveformType,
 )
 from .exceptions import *
@@ -28,7 +29,7 @@ class AWG(ABC):
     Attributes:
         ip_addr : str
             The IP address of the AWG device.
-        device : vxi11.Instrument | None
+        device : Union[vxi11.Instrument, None]
             The VXI-11 instrument instance representing the AWG device.
         manufacturer : str
             The manufacturer of the AWG device.
@@ -56,7 +57,7 @@ class AWG(ABC):
     """
 
     ip_addr: str
-    device: vxi11.Instrument | None
+    device: Union[vxi11.Instrument, None]
     manufacturer: str
     model: str
     serial_number: str
@@ -232,7 +233,7 @@ class AWG(ABC):
         try:
             response = self.device.write("*RST")
         except Exception as e:
-            logging.error(f"Failed to query command: {e}")
+            logging.error(f"Failed to reset the instrument: {e}")
             raise
 
     @abstractmethod
@@ -249,7 +250,7 @@ class AWG(ABC):
 
     @abstractmethod
     def set_burst_mode(
-        self: AWG, channel: int, mode: BurstModeRigol | BurstModeSiglent
+        self: AWG, channel: int, mode: Union[BurstModeRigol, BurstModeSiglent]
     ) -> None:
         """Sets the burst mode for the specified channel."""
         raise NotImplementedError
@@ -310,7 +311,7 @@ class AWG(ABC):
 
     @abstractmethod
     def set_pulse_width(
-        self: AWG, channel: int, pulse_width: Union[float, int]
+        self: AWG, channel: int, pulse_width: Union[float, int], unit: PulseWidthUnit
     ) -> None:
         """Sets the pulse width for the specified channel."""
         raise NotImplementedError

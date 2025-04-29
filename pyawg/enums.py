@@ -102,6 +102,21 @@ class Polarity(Enum):
     INVERTED = "INVT"
 
 
+class PulseWidthUnit(Enum):
+    """
+    Enum class representing pulse width units.
+
+    Attributes:
+        S (str): Seconds.
+        MS (str): Milliseconds.
+        US (str): Microseconds.
+    """
+
+    S = "S"
+    mS = "MS"
+    uS = "US"
+
+
 class WaveformType(Enum):
     """
     Enum class representing different types of waveforms.
@@ -113,10 +128,10 @@ class WaveformType(Enum):
         PULSE (str): Pulse waveform.
         NOISE (str): Noise waveform.
         DC (str): Direct Current (DC) waveform.
-        ARB (str): Arbitrary waveform.
+        # ARB (str): Arbitrary waveform. (Currently not supported using enum, but could be directly set using awg.write() method)
     """
 
-    SINE = "SIN"
+    SINE = "SINE"
     SQUARE = "SQUARE"
     RAMP = "RAMP"
     PULSE = "PULSE"

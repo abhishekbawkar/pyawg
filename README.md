@@ -28,9 +28,42 @@ Installation of the library is very simple via `pip` command as shown below.
 >>> pip install pyawg
 ```
 
+## Functions
+
+Following functions are implemented in the library. In case, any other command needs to be sent to the AWG, the `write()` and `query()` functions can be used to send any command 
+to the AWG. The library will automatically add the required line terminator to the command. All bugs and new implementations/extensions are welcome via Github issues and/or pull 
+requests.
+
+| Functionality            | Function                     | Implemented | Tested | Description                                                                                                                          | 
+|--------------------------|------------------------------|-------------|--------|--------------------------------------------------------------------------------------------------------------------------------------|
+| Identify                 | `get_id()`                   | Yes         | Yes    | Get the ID of the connected AWG.                                                                                                     |
+| Reset                    | `reset()`                    | Yes         | Yes    | Reset the AWG to system defaults.                                                                                                    |
+| Close                    | `close()`                    | Yes         | Yes    | Close the connection to the AWG.                                                                                                     |
+| Set Output               | `set_output()`               | Yes         | Yes    | Enables or disables the output.                                                                                                      |
+| Set Output Load          | `set_output_load()`          | Yes         |        | Set the output load impedance.                                                                                                       |
+| Set Waveform             | `set_waveform()`             | Yes         | Yes    | Set the waveform type.                                                                                                               |
+| Set Frequency            | `set_frequency()`            | Yes         | Yes    | Set the frequency of the waveform in Hz, KHz, MHz.                                                                                   |
+| Set Amplitude            | `set_amplitude()`            | Yes         | Yes    | Set the amplitude of the waveform in Vpp.                                                                                            |
+| Set Offset               | `set_offset()`               | Yes         | Yes    | Set the offset voltage in Vdc.                                                                                                       |
+| Set Duty Cycle           | `set_duty_cycle()`           | Yes         | Yes    | Set the duty cycle of the waveform in percentage.                                                                                    |
+| Set Pulse Width          | `set_pulse_width()`          | Yes         |        | Set the pulse width of the waveform in seconds.                                                                                      |
+| Set Phase                | `set_phase()`                | Yes         | Yes    | Set the phase shift in degrees.                                                                                                      |
+| Synchronize Phase        | `sync_phase()`               | Yes         | Yes    | Synchronize the phase of the channels.                                                                                               |
+| Enable Burst Mode        | `enable_burst_mode()`        | Yes         |        | Enable or disable burst mode.                                                                                                        |
+| Set Burst Delay          | `set_burst_delay()`          | Yes         |        | Set the burst delay.                                                                                                                 |
+| Set Burst Mode           | `set_burst_mode()`           | Yes         |        | Set the burst mode.                                                                                                                  |
+| Set Burst Period         | `set_burst_period()`         | Yes         |        | Set the period of the burst.                                                                                                         |
+| Set Burst State          | `set_burst_state()`          | Yes         |        | Turns the burst mode ON or OFF.                                                                                                      |
+| Set Burst Trigger Source | `set_burst_trigger_source()` | Yes         |        | Set the trigger source for burst mode.                                                                                               |
+| Trigger Burst            | `trigger_burst()`            | Yes         |        | Trigger the burst.                                                                                                                   |
+| Write                    | `write()`                    | Yes         | Yes    | Write any documented command to the AWG. Please refer official programming guide for your instrument.                                |
+| Query                    | `query()`                    | Yes         | Yes    | Query any documented command and retrieve the information from the AWG. Please refer official programming guide for your instrument. |
+
+
 ## Usage
 
-Here is an exmaple with Rigol DG1032Z Arbitrary Waveform Generator. For the variants from other manufacturers, the `DEBUG` logs would be printed slightly different based on their respective syntax. 
+Here is an exmaple with Rigol DG1032Z Arbitrary Waveform Generator. For the variants from other manufacturers, the `DEBUG` logs would be printed slightly different based on their 
+respective syntax. 
 
 ```python
 >>> from pyawg import awg_control, AmplitudeUnit, FrequencyUnit, WaveformType
@@ -69,3 +102,13 @@ Here is an exmaple with Rigol DG1032Z Arbitrary Waveform Generator. For the vari
 >>> awg.close()
 [2025.03.06 21:35:13][DEBUG] Disconnected from AWG
 ```
+
+
+## Exceptions 
+
+The library raises following exceptions in case of any error.
+
+* InvalidChannelNumber : This exception is raised when the channel number is invalid. The valid channel numbers are 1 and 2.
+* TypeError : This exception is raised when the datatype of an argument passed while calling a method is not valid. For example, if the frequency is passed as a string instead of a float.
+* ValueError : This exception is raised when the value of an argument passed while calling a method is not valid. For example, if the frequency is passed as a negative number.
+* Exception : This exception is raised when there is an error in the communication with the AWG. For example, if the AWG is not connected or if the command sent to the AWG is not valid.
