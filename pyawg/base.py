@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
+import time
 from typing import Union
 
 import vxi11
@@ -344,6 +345,7 @@ class AWG(ABC):
         try:
             self.device.write(command)
             logging.debug(f"Sent command: {command}")
+            time.sleep(0.25)
         except Exception as e:
             logging.error(f"Failed to write command: {e}")
             raise
