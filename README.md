@@ -112,3 +112,33 @@ The library raises following exceptions in case of any error.
 * TypeError : This exception is raised when the datatype of an argument passed while calling a method is not valid. For example, if the frequency is passed as a string instead of a float.
 * ValueError : This exception is raised when the value of an argument passed while calling a method is not valid. For example, if the frequency is passed as a negative number.
 * Exception : This exception is raised when there is an error in the communication with the AWG. For example, if the AWG is not connected or if the command sent to the AWG is not valid.
+
+
+## Cyber Resilience Act (CRA) Compliance Statement (applicable for the usage of this library in the EU countries)
+
+The `pyawg` library is an open-source Python tool released under the GPLv3 license. It is designed for internal use in test automation environments, specifically to control arbitrary waveform generators (AWGs) over the VXI-11 protocol. 
+
+Its primary usage is intended to be used **only as an internal tool for development and testing** of embedded hardware, firmware and software products.
+It is **not meant to be part of any embedded software, firmware, or product delivered to customers**.
+
+As such:
+- The library is not incorporated into any commercial product.
+- It is not distributed to end users or external third parties.
+- It does not include cryptographic functionality or secure communication features.
+- It does not collect, transmit, or store data outside the local test environment.
+- It operates entirely within a controlled internal network or lab setup.
+
+Given its limited scope and internal-only use, this library does not fall within the applicability of the EU Cyber Resilience Act (CRA), which focuses on digital products made available on the EU market. The use of `pyawg` aligns with current industry practices for open-source internal tooling and presents no known cybersecurity exposure in its intended context.
+
+For a full breakdown of dependencies and software structure, please refer to the [Software Bill of Materials (SBOM)](https://github.com/abhishekbawkar/pyawg/blob/master/SBOM.md).
+
+
+## Ownership and Contribution
+
+This library was created and is maintained by Abhishek Bawkar as an independent open-source project.
+
+The project is made available in good faith as a productivity aid for internal use. While it is not an official company product, collaboration and private forking for internal deployment is welcome and encouraged under the terms of the GPLv3 license.
+
+All source code and documentation reflect the author’s original work unless stated otherwise.
+
+Please refer to the [Contributor Guidelines](https://github.com/abhishekbawkar/pyawg/blob/master/CONTRIBUTING.md) for details on how to extend or modify this library responsibly.
