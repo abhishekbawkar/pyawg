@@ -32,3 +32,15 @@ This ensures clear traceability and licensing consistency across the codebase.
 All contributions must be compatible with GPLv3. By submitting code, you agree that your work may be distributed under the same terms.
 
 For questions about licensing or contributions, please open an issue or contact the maintainer.
+
+
+## EU Cyber Resilience Act (CRA) Compliance Alignment
+
+This project is intended solely for internal test automation and is **not** part of any commercial product.  
+To maintain alignment with the EU Cyber Resilience Act (CRA) scope:
+
+- Do not add features that involve encryption, secure communication protocols, or cloud-based data transfer.
+- Do not integrate functionality that would make this library part of a product delivered to customers.
+- Keep all contributions in line with the intended usage described in the README.md.
+
+Any contribution that could affect CRA applicability may be rejected or require a separate discussion before merging.
