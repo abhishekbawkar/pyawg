@@ -44,4 +44,4 @@ This SBOM is provided for transparency and traceability in alignment with secure
 
 ---
 
-_Last updated: [Insert Date]_
+_Last updated: [07. Aug 2025]_
