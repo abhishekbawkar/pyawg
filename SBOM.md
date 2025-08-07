@@ -36,7 +36,7 @@
 
 ---
 
-## CRA Relevance
+## Cyber Resilience Act (CRA) Compliance (EU)
 
 Based on its purpose, scope, and deployment context, `pyawg` is not considered a "product with digital elements" as defined by the **EU Cyber Resilience Act (CRA)**. As such, the obligations outlined in the CRA are not applicable to this project.
 
