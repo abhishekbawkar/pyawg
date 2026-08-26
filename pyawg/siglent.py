@@ -181,6 +181,7 @@ class SiglentSDG1000X(AWG):
             logging.error(
                 f"Failed to set channel {channel} burst delay to {delay}: {e}"
             )
+            raise
 
     def set_burst_cycles(self: SiglentSDG1000X, channel: int, cycles: int) -> None:
         """
@@ -253,6 +254,7 @@ class SiglentSDG1000X(AWG):
             logging.error(
                 f"Failed to set channel {channel} burst mode to {burst_mode.value}: {e}"
             )
+            raise
 
     def set_burst_period(
         self: SiglentSDG1000X, channel: int, period: Union[float, int]
@@ -288,6 +290,7 @@ class SiglentSDG1000X(AWG):
             logging.error(
                 f"Failed to set channel {channel} burst period to {period}: {e}"
             )
+            raise
 
     def set_burst_state(self: SiglentSDG1000X, channel: int, state: bool) -> None:
         """
@@ -318,6 +321,7 @@ class SiglentSDG1000X(AWG):
             logging.error(
                 f"Failed to set channel {channel} burst state to {state_str}: {e}"
             )
+            raise
 
     def set_burst_trigger_source(
         self: SiglentSDG1000X, channel: int, trigger_source: BurstTriggerSource
@@ -354,6 +358,7 @@ class SiglentSDG1000X(AWG):
             logging.error(
                 f"Failed to set channel {channel} burst trigger source to {trigger_source.value}: {e}"
             )
+            raise
 
     def set_duty_cycle(
         self: SiglentSDG1000X, channel: int, duty_cycle: Union[float, int]
@@ -391,6 +396,7 @@ class SiglentSDG1000X(AWG):
             logging.error(
                 f"Failed to set channel {channel} duty cycle source to {duty_cycle}: {e}"
             )
+            raise
 
     def set_frequency(
         self: SiglentSDG1000X,
@@ -505,6 +511,7 @@ class SiglentSDG1000X(AWG):
             logging.debug(f"Channel {channel} output has been set to {state_str}")
         except Exception as e:
             logging.error(f"Failed to set channel {channel} output to {state_str}: {e}")
+            raise
 
     def set_output_load(
         self: SiglentSDG1000X, channel: int, load: Union[float, int, OutputLoad]
@@ -539,6 +546,7 @@ class SiglentSDG1000X(AWG):
             logging.debug(f"Channel {channel} output load has been set to {load}")
         except Exception as e:
             logging.error(f"Failed to set channel {channel} output load to {load}: {e}")
+            raise
 
     def set_phase(self: SiglentSDG1000X, channel: int, phase: Union[float, int]) -> None:
         """
@@ -621,6 +629,7 @@ class SiglentSDG1000X(AWG):
             logging.error(
                 f"Failed to set channel {channel} duty cycle source to {pulse_width}: {e}"
             )
+            raise
 
     def set_waveform(
         self: SiglentSDG1000X, channel: int, waveform_type: WaveformType
@@ -705,3 +714,4 @@ class SiglentSDG1000X(AWG):
             logging.debug(f"Burst on channel {channel} has been successfully triggered")
         except Exception as e:
             logging.error(f"Failed to trigger the burst on channel {channel}: {e}")
+            raise
