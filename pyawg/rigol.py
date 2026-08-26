@@ -135,6 +135,7 @@ class RigolDG1000Z(AWG):
             logging.error(
                 f"Failed to set channel {channel} burst delay to {delay}: {e}"
             )
+            raise
 
     def set_burst_cycles(self: RigolDG1000Z, channel: int, cycles: int) -> None:
         """
@@ -209,6 +210,7 @@ class RigolDG1000Z(AWG):
             logging.error(
                 f"Failed to set channel {channel} burst mode to {burst_mode.value}: {e}"
             )
+            raise
 
     def set_burst_period(self: RigolDG1000Z, channel: int, period: Union[float, int]) -> None:
         """
@@ -242,6 +244,7 @@ class RigolDG1000Z(AWG):
             logging.error(
                 f"Failed to set channel {channel} burst period to {period}: {e}"
             )
+            raise
 
     def set_burst_state(self: RigolDG1000Z, channel: int, state: bool) -> None:
         """
@@ -272,6 +275,7 @@ class RigolDG1000Z(AWG):
             logging.error(
                 f"Failed to set channel {channel} burst state to {state_str}: {e}"
             )
+            raise
 
     def set_burst_trigger_source(
         self: RigolDG1000Z, channel: int, trigger_source: BurstTriggerSource
@@ -308,6 +312,7 @@ class RigolDG1000Z(AWG):
             logging.error(
                 f"Failed to set channel {channel} burst trigger source to {trigger_source.value}: {e}"
             )
+            raise
 
     def set_duty_cycle(
         self: RigolDG1000Z, channel: int, duty_cycle: Union[float, int]
@@ -345,6 +350,7 @@ class RigolDG1000Z(AWG):
             logging.error(
                 f"Failed to set channel {channel} duty cycle source to {duty_cycle}: {e}"
             )
+            raise
 
     def set_frequency(
         self: RigolDG1000Z,
@@ -451,6 +457,7 @@ class RigolDG1000Z(AWG):
             logging.debug(f"Channel {channel} output has been set to {state_str}")
         except Exception as e:
             logging.error(f"Failed to set channel {channel} output to {state_str}: {e}")
+            raise
 
     def set_output_load(
         self: RigolDG1000Z, channel: int, load: Union[float, int, OutputLoad]
@@ -485,6 +492,7 @@ class RigolDG1000Z(AWG):
             logging.debug(f"Channel {channel} output load has been set to {load}")
         except Exception as e:
             logging.error(f"Failed to set channel {channel} output load to {load}: {e}")
+            raise
 
     def set_phase(self: RigolDG1000Z, channel: int, phase: Union[float, int]) -> None:
         """
@@ -567,6 +575,7 @@ class RigolDG1000Z(AWG):
             logging.error(
                 f"Failed to set channel {channel} duty cycle source to {pulse_width}: {e}"
             )
+            raise
 
     def set_waveform(
         self: RigolDG1000Z, channel: int, waveform_type: WaveformType
@@ -652,3 +661,4 @@ class RigolDG1000Z(AWG):
             logging.debug(f"Burst on channel {channel} has been successfully triggered")
         except Exception as e:
             logging.error(f"Failed to trigger the burst on channel {channel}: {e}")
+            raise
