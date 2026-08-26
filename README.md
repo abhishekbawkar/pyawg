@@ -50,6 +50,7 @@ requests.
 | Set Phase                | `set_phase()`                | Yes         | Yes    | Set the phase shift in degrees.                                                                                                      |
 | Synchronize Phase        | `sync_phase()`               | Yes         | Yes    | Synchronize the phase of the channels.                                                                                               |
 | Enable Burst Mode        | `enable_burst_mode()`        | Yes         |        | Enable or disable burst mode.                                                                                                        |
+| Set Burst Cycles         | `set_burst_cycles()`         | Yes         |        | Set the burst cycles.                                                                                                                 |
 | Set Burst Delay          | `set_burst_delay()`          | Yes         |        | Set the burst delay.                                                                                                                 |
 | Set Burst Mode           | `set_burst_mode()`           | Yes         |        | Set the burst mode.                                                                                                                  |
 | Set Burst Period         | `set_burst_period()`         | Yes         |        | Set the period of the burst.                                                                                                         |

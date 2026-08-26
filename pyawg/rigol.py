@@ -136,6 +136,45 @@ class RigolDG1000Z(AWG):
                 f"Failed to set channel {channel} burst delay to {delay}: {e}"
             )
 
+    def set_burst_cycles(self: RigolDG1000Z, channel: int, cycles: int) -> None:
+        """
+        Sets the number of cycles emitted per burst for the specified channel on the Rigol DG1000Z.
+
+        Only takes effect while the channel's burst mode is TRIG (see `set_burst_mode`); the
+        instrument ignores the cycle count in GAT and INF modes.
+
+        Args:
+            self (RigolDG1000Z): The instance of the RigolDG1000Z class.
+            channel (int): The channel number (must be 1 or 2).
+            cycles (int): Cycles emitted per trigger. Must be between 1 and 1000000.
+
+        Raises:
+            InvalidChannelNumber: If the channel number is not 1 or 2.
+            TypeError: If cycles is not an int.
+            ValueError: If cycles is outside 1..1000000.
+            Exception: If there is an error in writing the command to the device.
+
+        Returns:
+            None
+
+        """
+        self._validate_channel(channel)
+        if type(cycles) is not int:
+            raise TypeError(f"'cycles' must be int; received {type(cycles)}")
+        elif not 1 <= cycles <= 1_000_000:
+            raise ValueError(
+                f"'cycles' must be between 1 and 1000000 for a triggered burst; received {cycles}"
+            )
+
+        try:
+            self.write(f"SOUR{channel}:BURS:NCYC {cycles}")
+            logging.debug(f"Channel {channel} burst cycle count has been set to {cycles}")
+        except Exception as e:
+            logging.error(
+                f"Failed to set channel {channel} burst cycle count to {cycles}: {e}"
+            )
+            raise
+
     def set_burst_mode(
         self: RigolDG1000Z, channel: int, burst_mode: BurstModeRigol
     ) -> None:
