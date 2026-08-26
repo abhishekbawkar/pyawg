@@ -252,7 +252,7 @@ class AWG(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def set_burst_cycles(self: AWG, channel: int, cycles: Union int) -> None:
+    def set_burst_cycles(self: AWG, channel: int, cycles: int) -> None:
         """Set the number of cycles of the N cycle burst of the specified channel."""
         raise NotImplementedError
 
