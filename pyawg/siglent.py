@@ -182,6 +182,43 @@ class SiglentSDG1000X(AWG):
                 f"Failed to set channel {channel} burst delay to {delay}: {e}"
             )
 
+    def set_burst_cycles(self: SiglentSDG1000X, channel: int, cycles: int) -> None:
+        """
+        Sets the number of cycles emitted per burst for the specified channel on the Siglent SDG1000X.
+
+        Only takes effect while the channel's burst mode is NCYC (see `set_burst_mode`); the
+        instrument ignores the cycle count in GATE mode.
+
+        Args:
+            self (SiglentSDG1000X): The instance of the SiglentSDG1000X class.
+            channel (int): The channel number (must be 1 or 2).
+            cycles (int): Cycles emitted per trigger. Must be a whole number of at least 1.
+
+        Raises:
+            InvalidChannelNumber: If the channel number is not 1 or 2.
+            TypeError: If cycles is not an int.
+            ValueError: If cycles is less than 1.
+            Exception: If there is an error in writing the command to the device.
+
+        Returns:
+            None
+
+        """
+        self._validate_channel(channel)
+        if type(cycles) is not int:
+            raise TypeError(f"'cycles' must be int; received {type(cycles)}")
+        elif cycles < 1:
+            raise ValueError(f"'cycles' must be at least 1; received {cycles}")
+
+        try:
+            self.write(f"C{channel}:BTWV TIME,{cycles}")
+            logging.debug(f"Channel {channel} burst cycle count has been set to {cycles}")
+        except Exception as e:
+            logging.error(
+                f"Failed to set channel {channel} burst cycle count to {cycles}: {e}"
+            )
+            raise
+
     def set_burst_mode(
         self: SiglentSDG1000X, channel: int, burst_mode: BurstModeSiglent
     ) -> None:
