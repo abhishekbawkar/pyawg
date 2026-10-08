@@ -39,3 +39,11 @@ class InvalidChannelNumber(PyAWGException):
         super().__init__(
             f"Invalid Channel Number: {channel}; please check the datatype and/or its value"
         )
+
+class UnsupportedModel(PyAWGException):
+    """
+    Exception raised when a command is not supported by the connected instrument model.
+    """
+
+    def __init__(self: UnsupportedModel, model, feature) -> None:
+        super().__init__(f"{feature} is not supported by model {model}")
