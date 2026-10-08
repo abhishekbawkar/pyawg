@@ -318,7 +318,7 @@ class SiglentSDG1000X(AWG):
 
         state_str = "RUN" if run else "STOP"
         try:
-            self.write(f"C{channel}:BTWV RSTAT,{state_str}")
+            self.write(f"C{channel}:BURSt:RSTAT {state_str}")
             logging.debug(f"Channel {channel} burst run state has been set to {state_str}")
         except Exception as e:
             logging.error(
