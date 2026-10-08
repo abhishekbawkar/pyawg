@@ -17,6 +17,7 @@ from .enums import (
     PulseWidthUnit,
     WaveformType,
 )
+from .exceptions import UnsupportedModel
 
 
 class SiglentSDG1000X(AWG):
@@ -289,6 +290,39 @@ class SiglentSDG1000X(AWG):
         except Exception as e:
             logging.error(
                 f"Failed to set channel {channel} burst period to {period}: {e}"
+            )
+            raise
+    
+    def set_burst_run_state(self: SiglentSDG1000X, channel: int, run: bool) -> None:
+        """
+        Sets the burst playback status (RSTAT) for the specified channel. SDG1000X Plus only.
+
+        Args:
+            channel (int): The channel number. Must be 1 or 2.
+            run (bool): True for RUN, False for STOP (the burst waits for a trigger).
+
+        Raises:
+            InvalidChannelNumber: If the channel number is not 1 or 2.
+            TypeError: If run is not a boolean.
+            UnsupportedModel: If the instrument is not an SDG1000X Plus.
+            Exception: If there is an error in writing the command to the device.
+
+        Returns:
+            None
+        """
+        self._validate_channel(channel)
+        if type(run) is not bool:
+            raise TypeError(f"'run' must be bool; received {type(run)}")
+        if "Plus" not in self.model:
+            raise UnsupportedModel(self.model, "Burst playback status (RSTAT)")
+
+        state_str = "RUN" if run else "STOP"
+        try:
+            self.write(f"C{channel}:BTWV RSTAT,{state_str}")
+            logging.debug(f"Channel {channel} burst run state has been set to {state_str}")
+        except Exception as e:
+            logging.error(
+                f"Failed to set channel {channel} burst run state to {state_str}: {e}"
             )
             raise
 
