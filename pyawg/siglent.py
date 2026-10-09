@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Union
+from typing import Optional, Union
 
 from .base import AWG
 from .enums import (
@@ -22,25 +22,33 @@ from .exceptions import UnsupportedModel
 
 class SiglentSDG1000X(AWG):
     """
-    SiglentSDG1000X is a class that represents the Siglent SDG1000X Arbitrary Waveform Generator (AWG).
-    It provides methods to control various parameters of the AWG such as amplitude, burst delay,
-    burst mode, burst period, burst state, burst trigger source, frequency, offset voltage,
+    SiglentSDG1000X is a class that represents the Siglent SDG1000X / SDG1000X Plus Arbitrary Waveform
+    Generator (AWG). It provides methods to control various parameters of the AWG such as amplitude,
+    burst delay, burst mode, burst period, burst state, burst trigger source, frequency, offset voltage,
     output state, output load, phase, waveform type, phase synchronization, and burst triggering.
+
+    Burst parameters (mode, cycles, trigger source, period, delay) can only be set while burst is ON:
+    call `set_burst_state(channel, True)` first. Enabling burst resets them to the instrument defaults.
 
     Methods:
         __init__(self: SiglentSDG1000X, ip_address):
+        get_burst_parameter(self: SiglentSDG1000X, channel: int, parameter: str) -> str:
         get_channel_wave_parameter(self: SiglentSDG1000X, channel: int, parameter: str) -> str:
         set_amplitude(self: SiglentSDG1000X, channel: int, amplitude: Union[float, int], unit: AmplitudeUnit = AmplitudeUnit.VPP) -> None:
+        set_burst_cycles(self: SiglentSDG1000X, channel: int, cycles: Union[int, str]) -> None:
         set_burst_delay(self: SiglentSDG1000X, channel: int, delay: Union[float, int]) -> None:
-        set_burst_mode(self: SiglentSDG1000X, channel: int, burst_mode: BurstModeRigol) -> None:
+        set_burst_mode(self: SiglentSDG1000X, channel: int, burst_mode: BurstModeSiglent) -> None:
         set_burst_period(self: SiglentSDG1000X, channel: int, period: Union[float, int]) -> None:
+        set_burst_run_state(self: SiglentSDG1000X, channel: int, run: bool) -> None:
         set_burst_state(self: SiglentSDG1000X, channel: int, state: bool) -> None:
         set_burst_trigger_source(self: SiglentSDG1000X, channel: int, trigger_source: BurstTriggerSource) -> None:
+        set_duty_cycle(self: SiglentSDG1000X, channel: int, duty_cycle: Union[float, int]) -> None:
         set_frequency(self: SiglentSDG1000X, channel: int, frequency: Union[float, int], unit: FrequencyUnit = FrequencyUnit.HZ) -> None:
         set_offset(self: SiglentSDG1000X, channel: int, offset_voltage: Union[float, int]) -> None:
         set_output(self: SiglentSDG1000X, channel: int, state: bool) -> None:
         set_output_load(self: SiglentSDG1000X, channel: int, load: Union[float, int, OutputLoad]) -> None:
         set_phase(self: SiglentSDG1000X, channel: int, phase: Union[float, int]) -> None:
+        set_pulse_width(self: SiglentSDG1000X, channel: int, pulse_width: Union[float, int], unit: PulseWidthUnit = PulseWidthUnit.S) -> None:
         set_waveform(self: SiglentSDG1000X, channel: int, waveform_type: WaveformType) -> None:
         sync_phase(self: SiglentSDG1000X, channel: int = 1) -> None:
         trigger_burst(self: SiglentSDG1000X, channel: int) -> None:
@@ -61,21 +69,110 @@ class SiglentSDG1000X(AWG):
         self.MAX_CHANNELS = 2
         self.MAX_FREQUENCY = 3e7 if "1032" in self.model else 6e7
         self.MIN_FREQUENCY = 0
-        self.MAX_AMPLITUDE = 10.0
-        self.MIN_AMPLITUDE = -10.0
+        # Vpp into High-Z; into 50 Ohm the instrument allows half of it.
+        self.MAX_AMPLITUDE = 20.0
+        self.MIN_AMPLITUDE = 0.001
+        self.MAX_BURST_CYCLES = 1_000_000
+
+    @staticmethod
+    def _parse_reply(reply: str) -> dict:
+        """
+        Parses a `C<n>:XXXX key,value,...` reply into a dict.
+
+        Bare section markers (e.g. CARR in a BTWV? reply) carry no value. Parsing stops at CARR, so a
+        burst reply yields only the burst's own fields; carrier fields are read with BSWV?.
+        """
+        parts = reply.strip().strip("'").split(" ", 1)[-1].split(",")
+        params = {}
+        index = 0
+        while index < len(parts) - 1:
+            if parts[index] == "CARR":
+                break
+            params[parts[index]] = parts[index + 1]
+            index += 2
+        return params
+
+    def _require_burst_on(self: SiglentSDG1000X, channel: int) -> None:
+        """
+        Raises if burst is OFF on the channel. The instrument ignores burst parameters until burst
+        is ON, and enabling it afterwards resets them to defaults.
+        """
+        state = self._parse_reply(self.query(f"C{channel}:BTWV?")).get("STATE")
+        if state != "ON":
+            raise RuntimeError(
+                f"Burst is OFF on channel {channel}; call set_burst_state({channel}, True) before setting burst parameters"
+            )
+
+    def _validate_amplitude(self: SiglentSDG1000X, amplitude: Union[float, int]) -> None:
+        """
+        Validates the amplitude (Vpp) for the Siglent SDG1000X.
+
+        Raises:
+            TypeError: If the amplitude is not a float or int.
+            ValueError: If the amplitude is not between MIN_AMPLITUDE and MAX_AMPLITUDE.
+        """
+        if (type(amplitude) is not int) and (type(amplitude) is not float):
+            raise TypeError(
+                f"'amplitude' must be float or int; received {type(amplitude)}"
+            )
+        if not self.MIN_AMPLITUDE <= amplitude <= self.MAX_AMPLITUDE:
+            raise ValueError(
+                f"'amplitude' must be between {self.MIN_AMPLITUDE} and {self.MAX_AMPLITUDE} Vpp"
+            )
+
+    def get_burst_parameter(self: SiglentSDG1000X, channel: int, parameter: str) -> Optional[str]:
+        """
+        Gets a burst parameter for the specified channel.
+
+        Args:
+            channel (int): The channel number to query.
+            parameter (str): Valid options are 'state', 'period', 'trigger_source', 'trigger_mode',
+                'cycles', 'delay', 'mode' and 'counter'. A field the instrument does not report in its
+                current configuration returns None.
+
+        Returns:
+            Optional[str]: The value of the requested parameter.
+
+        Raises:
+            InvalidChannelNumber: If the channel number is not 1 or 2.
+            KeyError: If the parameter is not one of the valid options.
+            Exception: If there is an error in querying the burst parameters.
+
+        """
+        self._validate_channel(channel)
+        try:
+            params = self._parse_reply(self.query(f"C{channel}:BTWV?"))
+            result_dict = {
+                "state": params.get("STATE"),
+                "period": params.get("PRD"),
+                "trigger_source": params.get("TRSR"),
+                "trigger_mode": params.get("TRMD"),
+                "cycles": params.get("TIME"),
+                "delay": params.get("DLAY"),
+                "mode": params.get("GATE_NCYC"),
+                "counter": params.get("COUNTER"),
+            }
+            return result_dict[parameter]
+
+        except Exception as e:
+            logging.error(f"Failed to retrieve burst parameter and/or its value: {e}")
+            raise
 
     def get_channel_wave_parameter(
         self: SiglentSDG1000X, channel: int, parameter: str
-    ) -> str:
+    ) -> Optional[str]:
         """
         Gets the waveform parameters for the specified channel.
 
         Args:
             channel (int): The channel number to query.
-            parameter (str): The specific parameter to retrieve. Valid options are 'waveform_type', 'frequency', 'period', 'amplitude', 'offset', 'high_level', 'low_level', and 'phase'.
+            parameter (str): The specific parameter to retrieve. Valid options are 'waveform_type',
+                'frequency', 'period', 'amplitude', 'offset', 'high_level', 'low_level', 'phase',
+                'duty_cycle', 'pulse_width', 'rise', 'fall' and 'delay'. A field the current waveform
+                does not have returns None.
 
         Returns:
-            str: The value of the requested parameter.
+            Optional[str]: The value of the requested parameter.
 
         Raises:
             Exception: If there is an error in querying the waveform parameters or retrieving the value.
@@ -83,13 +180,7 @@ class SiglentSDG1000X(AWG):
         """
 
         try:
-            response = self.query(f"C{channel}:BSWV?").split(" ")[1]
-            params = dict(
-                zip(
-                    response.strip("'").split(",")[::2],
-                    response.strip("'").split(",")[1::2],
-                )
-            )
+            params = self._parse_reply(self.query(f"C{channel}:BSWV?"))
 
             result_dict = {
                 "waveform_type": params.get("WVTP"),
@@ -100,6 +191,11 @@ class SiglentSDG1000X(AWG):
                 "high_level": params.get("HLEV"),
                 "low_level": params.get("LLEV"),
                 "phase": params.get("PHSE"),
+                "duty_cycle": params.get("DUTY"),
+                "pulse_width": params.get("WIDTH"),
+                "rise": params.get("RISE"),
+                "fall": params.get("FALL"),
+                "delay": params.get("DLY"),
             }
             return result_dict[parameter]
 
@@ -119,13 +215,14 @@ class SiglentSDG1000X(AWG):
         Args:
             self (SiglentSDG1000X): The instance of the SiglentSDG1000X class.
             channel (int): The channel number (must be 1 or 2).
-            amplitude (Union[float, int]): The amplitude value to set (must be between -10 and 10).
+            amplitude (Union[float, int]): The amplitude in Vpp, between 0.001 and 20 (High-Z load;
+                the instrument allows half of it into 50 Ohm).
             unit (AmplitudeUnit, optional): The unit of the amplitude (default is AmplitudeUnit.VPP).
 
         Raises:
             InvalidChannelNumber: If the channel number is not 1 or 2.
             TypeError: If the amplitude is not a float or int, or if the unit is not an instance of AmplitudeUnit.
-            ValueError: If the amplitude is not between -10 and 10.
+            ValueError: If the amplitude is not between 0.001 and 20.
             Exception: If there is an error in writing the command to the device.
 
         Returns:
@@ -136,7 +233,7 @@ class SiglentSDG1000X(AWG):
         self._validate_amplitude(amplitude)
         if not isinstance(unit, AmplitudeUnit):
             raise TypeError(
-                f"'unit' must be enum of type AmplitudeUnit. Hint: have you forgotten to import 'AmplitudeType' from 'pyawg'?"
+                f"'unit' must be enum of type AmplitudeUnit. Hint: have you forgotten to import 'AmplitudeUnit' from 'pyawg'?"
             )
 
         try:
@@ -148,11 +245,58 @@ class SiglentSDG1000X(AWG):
             )
             raise
 
+    def set_burst_cycles(
+        self: SiglentSDG1000X, channel: int, cycles: Union[int, str]
+    ) -> None:
+        """
+        Sets the number of cycles emitted per burst for the specified channel on the Siglent SDG1000X.
+
+        Only takes effect while the channel's burst mode is NCYC (see `set_burst_mode`); the
+        instrument ignores the cycle count in GATE mode. Burst must be ON (see `set_burst_state`).
+
+        Args:
+            self (SiglentSDG1000X): The instance of the SiglentSDG1000X class.
+            channel (int): The channel number (must be 1 or 2).
+            cycles (int | str): Cycles emitted per trigger, 1 to MAX_BURST_CYCLES, or "INF" for an
+                infinite burst.
+
+        Raises:
+            InvalidChannelNumber: If the channel number is not 1 or 2.
+            TypeError: If cycles is neither an int nor "INF".
+            ValueError: If cycles is not between 1 and MAX_BURST_CYCLES.
+            RuntimeError: If burst is OFF on the channel.
+            Exception: If there is an error in writing the command to the device.
+
+        Returns:
+            None
+
+        """
+        self._validate_channel(channel)
+        if cycles != "INF":
+            if type(cycles) is not int:
+                raise TypeError(f"'cycles' must be int or 'INF'; received {type(cycles)}")
+            elif not 1 <= cycles <= self.MAX_BURST_CYCLES:
+                raise ValueError(
+                    f"'cycles' must be between 1 and {self.MAX_BURST_CYCLES}; received {cycles}"
+                )
+        self._require_burst_on(channel)
+
+        try:
+            self.write(f"C{channel}:BTWV TIME,{cycles}")
+            logging.debug(f"Channel {channel} burst cycle count has been set to {cycles}")
+        except Exception as e:
+            logging.error(
+                f"Failed to set channel {channel} burst cycle count to {cycles}: {e}"
+            )
+            raise
+
     def set_burst_delay(
         self: SiglentSDG1000X, channel: int, delay: Union[float, int]
     ) -> None:
         """
-        Sets the burst delay for the specified channel on the Siglent SDG1000X.
+        Sets the burst trigger delay for the specified channel on the Siglent SDG1000X.
+
+        Available in NCYC mode only. Burst must be ON (see `set_burst_state`).
 
         Args:
             self (SiglentSDG1000X): The instance of the SiglentSDG1000X class.
@@ -163,6 +307,7 @@ class SiglentSDG1000X(AWG):
             InvalidChannelNumber: If the channel number is not 1 or 2.
             TypeError: If the delay is not a float or int.
             ValueError: If the delay is negative.
+            RuntimeError: If burst is OFF on the channel.
             Exception: If there is an error in writing the command to the device.
 
         Returns:
@@ -174,50 +319,14 @@ class SiglentSDG1000X(AWG):
             raise TypeError(f"'delay' must be float or int; received {type(delay)}")
         elif delay < 0:
             raise ValueError(f"'delay' cannot be negative")
+        self._require_burst_on(channel)
 
         try:
-            self.write(f"C{channel}:BTWV DEL,{delay}")
+            self.write(f"C{channel}:BTWV DLAY,{delay}")
             logging.debug(f"Channel {channel} burst delay has been set to {delay}")
         except Exception as e:
             logging.error(
                 f"Failed to set channel {channel} burst delay to {delay}: {e}"
-            )
-            raise
-
-    def set_burst_cycles(self: SiglentSDG1000X, channel: int, cycles: int) -> None:
-        """
-        Sets the number of cycles emitted per burst for the specified channel on the Siglent SDG1000X.
-
-        Only takes effect while the channel's burst mode is NCYC (see `set_burst_mode`); the
-        instrument ignores the cycle count in GATE mode.
-
-        Args:
-            self (SiglentSDG1000X): The instance of the SiglentSDG1000X class.
-            channel (int): The channel number (must be 1 or 2).
-            cycles (int): Cycles emitted per trigger. Must be a whole number of at least 1.
-
-        Raises:
-            InvalidChannelNumber: If the channel number is not 1 or 2.
-            TypeError: If cycles is not an int.
-            ValueError: If cycles is less than 1.
-            Exception: If there is an error in writing the command to the device.
-
-        Returns:
-            None
-
-        """
-        self._validate_channel(channel)
-        if type(cycles) is not int:
-            raise TypeError(f"'cycles' must be int; received {type(cycles)}")
-        elif cycles < 1:
-            raise ValueError(f"'cycles' must be at least 1; received {cycles}")
-
-        try:
-            self.write(f"C{channel}:BTWV TIME,{cycles}")
-            logging.debug(f"Channel {channel} burst cycle count has been set to {cycles}")
-        except Exception as e:
-            logging.error(
-                f"Failed to set channel {channel} burst cycle count to {cycles}: {e}"
             )
             raise
 
@@ -227,13 +336,16 @@ class SiglentSDG1000X(AWG):
         """
         Sets the burst mode for the specified channel on the Siglent SDG1000X.
 
+        Burst must be ON (see `set_burst_state`).
+
         Args:
             channel (int): The channel number to set the burst mode for. Must be 1 or 2.
-            burst_mode (BurstModeRigol): The burst mode to set. Must be an instance of BurstModeRigol.
+            burst_mode (BurstModeSiglent): The burst mode to set. Must be an instance of BurstModeSiglent.
 
         Raises:
             InvalidChannelNumber: If the channel number is not 1 or 2.
-            TypeError: If burst_mode is not an instance of BurstModeRigol.
+            TypeError: If burst_mode is not an instance of BurstModeSiglent.
+            RuntimeError: If burst is OFF on the channel.
             Exception: If there is an error in writing the command to the device.
 
         Returns:
@@ -245,6 +357,7 @@ class SiglentSDG1000X(AWG):
             raise TypeError(
                 f"'burst_mode' must be enum of type BurstModeSiglent. Hint: have you forgotten to import 'BurstModeSiglent' from 'pyawg'?"
             )
+        self._require_burst_on(channel)
 
         try:
             self.write(f"C{channel}:BTWV GATE_NCYC,{burst_mode.value}")
@@ -263,15 +376,19 @@ class SiglentSDG1000X(AWG):
         """
         Sets the burst period for the specified channel on the Siglent SDG1000X.
 
+        The period only applies with an internal trigger source; with a manual or external trigger
+        each burst starts on its trigger. Burst must be ON (see `set_burst_state`).
+
         Args:
             self (SiglentSDG1000X): The instance of the SiglentSDG1000X class.
             channel (int): The channel number (must be 1 or 2).
-            period (Union[float, int]): The burst period to set. Must be a non-negative float or int.
+            period (Union[float, int]): The burst period in seconds. Must be positive.
 
         Raises:
             InvalidChannelNumber: If the channel number is not 1 or 2.
             TypeError: If the period is not a float or int.
-            ValueError: If the period is negative.
+            ValueError: If the period is not positive.
+            RuntimeError: If burst is OFF on the channel.
             Exception: If there is an error in writing the command to the device.
 
         Returns:
@@ -281,8 +398,9 @@ class SiglentSDG1000X(AWG):
         self._validate_channel(channel)
         if not isinstance(period, (float, int)):
             raise TypeError(f"'period' must be float or int; received {type(period)}")
-        elif period < 0:
-            raise ValueError(f"'period' cannot be negative")
+        elif period <= 0:
+            raise ValueError(f"'period' must be positive")
+        self._require_burst_on(channel)
 
         try:
             self.write(f"C{channel}:BTWV PRD,{period}")
@@ -292,14 +410,17 @@ class SiglentSDG1000X(AWG):
                 f"Failed to set channel {channel} burst period to {period}: {e}"
             )
             raise
-    
+
     def set_burst_run_state(self: SiglentSDG1000X, channel: int, run: bool) -> None:
         """
         Sets the burst playback status (RSTAT) for the specified channel. SDG1000X Plus only.
 
+        With playback stopped the Plus outputs the carrier continuously; RUN makes an armed
+        manual/external burst wait for its trigger. Send it after the output is switched on.
+
         Args:
             channel (int): The channel number. Must be 1 or 2.
-            run (bool): True for RUN, False for STOP (the burst waits for a trigger).
+            run (bool): True for RUN, False for STOP.
 
         Raises:
             InvalidChannelNumber: If the channel number is not 1 or 2.
@@ -329,6 +450,8 @@ class SiglentSDG1000X(AWG):
     def set_burst_state(self: SiglentSDG1000X, channel: int, state: bool) -> None:
         """
         Sets the burst state for the specified channel on the Siglent SDG1000X.
+
+        Must be ON before any other burst parameter is set; enabling it resets them to defaults.
 
         Args:
             channel (int): The channel number to set the burst state for. Must be 1 or 2.
@@ -363,6 +486,8 @@ class SiglentSDG1000X(AWG):
         """
         Sets the burst trigger source for the specified channel on the Siglent SDG1000X.
 
+        Burst must be ON (see `set_burst_state`).
+
         Args:
             self (SiglentSDG1000X): The instance of the SiglentSDG1000X class.
             channel (int): The channel number (must be 1 or 2).
@@ -371,6 +496,7 @@ class SiglentSDG1000X(AWG):
         Raises:
             InvalidChannelNumber: If the channel number is not 1 or 2.
             TypeError: If the trigger_source is not an instance of the BurstTriggerSource enum.
+            RuntimeError: If burst is OFF on the channel.
             Exception: If there is an error in writing the command to the device.
 
         Returns:
@@ -382,6 +508,7 @@ class SiglentSDG1000X(AWG):
             raise TypeError(
                 f"'trigger_source' must be enum of type BurstTriggerSource. Hint: have you forgotten to import 'BurstTriggerSource' from 'pyawg'?"
             )
+        self._require_burst_on(channel)
 
         try:
             self.write(f"C{channel}:BTWV TRSR,{trigger_source.value}")
@@ -428,7 +555,7 @@ class SiglentSDG1000X(AWG):
             logging.debug(f"Channel {channel} duty cycle has been set to {duty_cycle}")
         except Exception as e:
             logging.error(
-                f"Failed to set channel {channel} duty cycle source to {duty_cycle}: {e}"
+                f"Failed to set channel {channel} duty cycle to {duty_cycle}: {e}"
             )
             raise
 
@@ -529,7 +656,7 @@ class SiglentSDG1000X(AWG):
         Raises:
             InvalidChannelNumber: If the channel number is not 1 or 2.
             TypeError: If the state is not a boolean.
-            Exception: If there is an error in writing the phase to the device.
+            Exception: If there is an error in writing the output state to the device.
 
         Returns:
             None
@@ -561,7 +688,7 @@ class SiglentSDG1000X(AWG):
         Raises:
             InvalidChannelNumber: If the channel number is not 1 or 2.
             TypeError: If the load is not a float, int, or an instance of OutputLoad.
-            Exception: If there is an error in writing the phase to the device.
+            Exception: If there is an error in writing the output load to the device.
 
         Returns:
             None
@@ -620,6 +747,8 @@ class SiglentSDG1000X(AWG):
         """
         Sets the pulse width for the specified channel on the Siglent SDG1000X.
 
+        The width must be shorter than the channel's current period, so set the frequency first.
+
         Args:
             self (SiglentSDG1000X): The instance of the SiglentSDG1000X class.
             channel (int): The channel number (must be 1 or 2).
@@ -629,7 +758,7 @@ class SiglentSDG1000X(AWG):
         Raises:
             InvalidChannelNumber: If the channel number is not 1 or 2.
             TypeError: If the datatype of pulse_width is neither float nor int.
-            ValueError: If the pulse_width is negative.
+            ValueError: If the pulse_width is not positive or not shorter than the period.
             Exception: If there is an error in writing the pulse width to the device.
 
         Returns:
@@ -641,9 +770,9 @@ class SiglentSDG1000X(AWG):
             raise TypeError(
                 f"'pulse_width' must be float or int; received {type(pulse_width)}"
             )
-        elif pulse_width < 0:
+        elif pulse_width <= 0:
             raise ValueError(
-                f"'pulse_width' cannot be negative; received {pulse_width}"
+                f"'pulse_width' must be positive; received {pulse_width}"
             )
 
         if not isinstance(unit, PulseWidthUnit):
@@ -656,12 +785,18 @@ class SiglentSDG1000X(AWG):
         elif unit == PulseWidthUnit.uS:
             pulse_width *= 1e-6
 
+        period = self.get_channel_wave_parameter(channel, "period")
+        if period is not None and pulse_width >= float(period.rstrip("S")):
+            raise ValueError(
+                f"'pulse_width' {pulse_width}s must be shorter than the period {period}"
+            )
+
         try:
             self.write(f"C{channel}:BSWV WIDTH,{pulse_width}")
-            logging.debug(f"Channel {channel} duty cycle has been set to {pulse_width}")
+            logging.debug(f"Channel {channel} pulse width has been set to {pulse_width}s")
         except Exception as e:
             logging.error(
-                f"Failed to set channel {channel} duty cycle source to {pulse_width}: {e}"
+                f"Failed to set channel {channel} pulse width to {pulse_width}s: {e}"
             )
             raise
 
@@ -702,16 +837,15 @@ class SiglentSDG1000X(AWG):
 
     def sync_phase(self: SiglentSDG1000X, channel: int = 1) -> None:
         """
-        Synchronizes the phase of the specified channel with the other channel.
+        Aligns the phases of both channels (EQPHASE).
 
-        This method sends a command to the Siglent SDG1000X function generator to
-        synchronize the phase of the specified channel with the other channel.
+        EQPHASE is generator-wide, so `channel` is not used; it is kept only to match the method
+        signature of the base class.
 
         Args:
-            channel (int): unsed parameter, kept only to match the method signature of the base class.
+            channel (int): Unused.
 
         Raises:
-            InvalidChannelNumber: If the channel number is not 1 or 2.
             Exception: If there is an error in writing the command to the device.
 
         Returns:
@@ -720,8 +854,8 @@ class SiglentSDG1000X(AWG):
         """
 
         try:
-            self.write(f"EQPHASE")
-            logging.debug(f"Phases of both the channels have been synchronized")
+            self.write("EQPHASE")
+            logging.debug("Phases of both the channels have been synchronized")
         except Exception as e:
             logging.error(f"Failed to synchronize phase: {e}")
             raise
@@ -729,6 +863,9 @@ class SiglentSDG1000X(AWG):
     def trigger_burst(self: SiglentSDG1000X, channel: int) -> None:
         """
         Triggers a burst on the specified channel of the Siglent SDG1000X signal generator.
+
+        Only valid with a manual trigger source. On an SDG1000X Plus, burst playback must be RUN
+        (see `set_burst_run_state`).
 
         Args:
             channel (int): The channel number to trigger the burst on. Must be 1 or 2.
