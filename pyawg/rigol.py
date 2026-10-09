@@ -30,6 +30,7 @@ class RigolDG1000Z(AWG):
         __init__(self: RigolDG1000Z, ip_address):
         set_amplitude(self: RigolDG1000Z, channel: int, amplitude: Union[float, int], unit: AmplitudeUnit = AmplitudeUnit.VPP) -> None:
         set_burst_delay(self: RigolDG1000Z, channel: int, delay: Union[float, int]) -> None:
+        set_burst_idle_level(self: RigolDG1000Z, channel: int, level: Union[str, int]) -> None:
         set_burst_mode(self: RigolDG1000Z, channel: int, burst_mode: BurstModeRigol) -> None:
         set_burst_period(self: RigolDG1000Z, channel: int, period: Union[float, int]) -> None:
         set_burst_state(self: RigolDG1000Z, channel: int, state: bool) -> None:
@@ -62,6 +63,37 @@ class RigolDG1000Z(AWG):
         self.MAX_AMPLITUDE = float(self.query(":SOUR:VOLT:AMPL? MAX"))
         self.MIN_AMPLITUDE = float(self.query(":SOUR:VOLT:AMPL? MIN"))
 
+    # Waveform names the instrument accepts; it rejects "SINE" (:FUNC takes SINusoid).
+    _WAVEFORM_NAMES = {
+        WaveformType.SINE: "SIN",
+        WaveformType.SQUARE: "SQU",
+        WaveformType.RAMP: "RAMP",
+        WaveformType.PULSE: "PULS",
+        WaveformType.NOISE: "NOIS",
+        WaveformType.DC: "DC",
+    }
+
+    # Idle levels accepted by :BURS:IDLE besides a raw 0..16383 point.
+    _BURST_IDLE_LEVELS = ("FPT", "TOP", "CENTER", "BOTTOM")
+
+    def _validate_channel_amplitude(self: RigolDG1000Z, channel: int, amplitude: Union[float, int]) -> None:
+        """
+        Validates the amplitude against the channel's current limits. The limits depend on the load
+        and frequency set right now, so they are queried rather than cached at connect time.
+
+        Raises:
+            TypeError: If the amplitude is not a float or int.
+            ValueError: If the amplitude is outside the channel's current limits.
+        """
+        if (type(amplitude) is not int) and (type(amplitude) is not float):
+            raise TypeError(f"'amplitude' must be float or int; received {type(amplitude)}")
+        max_amplitude = float(self.query(f":SOUR{channel}:VOLT? MAX"))
+        min_amplitude = float(self.query(f":SOUR{channel}:VOLT? MIN"))
+        if not min_amplitude <= amplitude <= max_amplitude:
+            raise ValueError(
+                f"'amplitude' must be between {min_amplitude} and {max_amplitude} with the current load and frequency"
+            )
+
     def set_amplitude(
         self: RigolDG1000Z,
         channel: int,
@@ -74,13 +106,13 @@ class RigolDG1000Z(AWG):
         Args:
             self (RigolDG1000Z): The instance of the RigolDG1000Z class.
             channel (int): The channel number (must be 1 or 2).
-            amplitude (Union[float, int]): The amplitude value to set (must be between -10 and 10).
+            amplitude (Union[float, int]): The amplitude value to set, within the channel's current limits.
             unit (AmplitudeUnit, optional): The unit of the amplitude (default is AmplitudeUnit.VPP).
 
         Raises:
             InvalidChannelNumber: If the channel number is not 1 or 2.
             TypeError: If the amplitude is not a float or int, or if the unit is not an instance of AmplitudeUnit.
-            ValueError: If the amplitude is not between -10 and 10.
+            ValueError: If the amplitude is outside the channel's current limits.
             Exception: If there is an error in writing the command to the device.
 
         Returns:
@@ -88,11 +120,13 @@ class RigolDG1000Z(AWG):
 
         """
         self._validate_channel(channel)
-        self._validate_amplitude(amplitude)
         if not isinstance(unit, AmplitudeUnit):
             raise TypeError(
-                f"'unit' must be enum of type AmplitudeUnit. Hint: have you forgotten to import 'AmplitudeType' from 'pyawg'?"
+                f"'unit' must be enum of type AmplitudeUnit. Hint: have you forgotten to import 'AmplitudeUnit' from 'pyawg'?"
             )
+        if unit == AmplitudeUnit.VPP:
+            # The instrument reports its limits in Vpp.
+            self._validate_channel_amplitude(channel, amplitude)
 
         try:
             self.write(f"SOUR{channel}:VOLT {amplitude}{unit.value}")
@@ -174,6 +208,46 @@ class RigolDG1000Z(AWG):
             logging.error(
                 f"Failed to set channel {channel} burst cycle count to {cycles}: {e}"
             )
+            raise
+
+    def set_burst_idle_level(self: RigolDG1000Z, channel: int, level: Union[str, int]) -> None:
+        """
+        Sets the level the output holds between bursts for the specified channel on the Rigol DG1000Z.
+
+        The default, FPT, holds the waveform's first point, which for a square or pulse carrier is
+        usually its high level. BOTTOM holds the low level, like an idle pulse line.
+
+        Args:
+            self (RigolDG1000Z): The instance of the RigolDG1000Z class.
+            channel (int): The channel number (must be 1 or 2).
+            level (str | int): "FPT", "TOP", "CENTER" or "BOTTOM", or a waveform point 0..16383.
+
+        Raises:
+            InvalidChannelNumber: If the channel number is not 1 or 2.
+            TypeError: If the level is neither a str nor an int.
+            ValueError: If the level is not one of the names above or not between 0 and 16383.
+            Exception: If there is an error in writing the command to the device.
+
+        Returns:
+            None
+
+        """
+        self._validate_channel(channel)
+        if isinstance(level, str):
+            level = level.upper()
+            if level not in self._BURST_IDLE_LEVELS:
+                raise ValueError(f"'level' must be one of {self._BURST_IDLE_LEVELS} or 0..16383; received {level}")
+        elif type(level) is int:
+            if not 0 <= level <= 16383:
+                raise ValueError(f"'level' must be between 0 and 16383; received {level}")
+        else:
+            raise TypeError(f"'level' must be str or int; received {type(level)}")
+
+        try:
+            self.write(f"SOUR{channel}:BURS:IDLE {level}")
+            logging.debug(f"Channel {channel} burst idle level has been set to {level}")
+        except Exception as e:
+            logging.error(f"Failed to set channel {channel} burst idle level to {level}: {e}")
             raise
 
     def set_burst_mode(
@@ -570,10 +644,10 @@ class RigolDG1000Z(AWG):
 
         try:
             self.write(f"SOUR{channel}:PULS:WIDT {pulse_width}")
-            logging.debug(f"Channel {channel} duty cycle has been set to {pulse_width}")
+            logging.debug(f"Channel {channel} pulse width has been set to {pulse_width}")
         except Exception as e:
             logging.error(
-                f"Failed to set channel {channel} duty cycle source to {pulse_width}: {e}"
+                f"Failed to set channel {channel} pulse width to {pulse_width}: {e}"
             )
             raise
 
@@ -604,7 +678,7 @@ class RigolDG1000Z(AWG):
             )
 
         try:
-            self.write(f"SOUR{channel}:FUNC {waveform_type.value}")
+            self.write(f"SOUR{channel}:FUNC {self._WAVEFORM_NAMES[waveform_type]}")
             logging.debug(f"Channel {channel} waveform set to {waveform_type.value}")
         except Exception as e:
             logging.error(
@@ -614,13 +688,15 @@ class RigolDG1000Z(AWG):
 
     def sync_phase(self: RigolDG1000Z, channel: int = 1) -> None:
         """
-        Synchronizes the phase of the specified channel with the other channel.
+        Aligns the phases of both channels (:PHAS:SYNC).
 
-        This method sends a command to the Rigol DG1000Z function generator to
-        synchronize the phase of the specified channel with the other channel.
+        The instrument re-configures both channels to output according to their set frequency and
+        phase, so a set offset (e.g. 0/90 degrees for an encoder) is kept, not equalised. It acts on
+        both channels whichever channel is given. Call it after both outputs are on, and again after
+        any later frequency or phase change.
 
         Args:
-            channel (int): The channel number to synchronize (1 or 2). Defaults to 1.
+            channel (int): The channel the command is addressed to (1 or 2). Defaults to 1.
 
         Raises:
             InvalidChannelNumber: If the channel number is not 1 or 2.
